@@ -16,7 +16,7 @@ If no project exists, initialize a Nuxt 4 frontend project and configure the req
 
 If a project already exists, inspect its structure and continue using its established conventions. Do not recreate or overwrite an existing project.
 
-The dashboard must support realistic retail workflows, accessible interactions, reusable components, centralized `@apply` styling in `main.css`, Apple-style input controls that prevent iOS/iPadOS Safari auto-zoom on focus, a floating left sidebar driven by a `.jsonc` menu configuration with module and view-permission metadata, a users and roles management module with full CRUD and role-based action permissions (`view` / `create` / `edit` / `delete`), a full-screen POS terminal view (with no sidebar and a gear icon dropdown menu featuring an "Exit" item that redirects to the admin dashboard), **i18n with English (`en`) and Khmer (`km`) locales powered by `@nuxtjs/i18n`**, **a Light / Dark dual-theme system driven by the Pinia preferences store and CSS custom properties**, and strict zero-bug layout rules across mobile, tablet, and PC.
+The dashboard must support realistic retail workflows, accessible interactions, reusable components, centralized `@apply` styling in `main.css`, Apple-style input controls that prevent iOS/iPadOS Safari auto-zoom on focus, a floating left sidebar driven by a `.jsonc` menu configuration with module and view-permission metadata, a users and roles management module with full CRUD and role-based action permissions (`view` / `create` / `edit` / `delete`), a full-screen POS terminal view (with no sidebar and a gear icon dropdown menu featuring an "Exit" item that redirects to the admin dashboard) whose product search and cart **always display each product's image, title, price, and available stock**, **i18n with English (`en`) and Khmer (`km`) locales powered by `@nuxtjs/i18n`**, **a Light / Dark dual-theme system driven by the Pinia preferences store and CSS custom properties**, and strict zero-bug layout rules across mobile, tablet, and PC.
 
 **Execution Rule: Strict Phase-by-Phase Development & Live Progress Tracking.**
 Development must proceed phase by phase. Never jump ahead or dump all code in a single massive step without completing, verifying, and recording progress. At the start of Phase 1, create `PROGRESS.md` in the project root. After each phase, verify exit criteria, update `PROGRESS.md` with status and completion timestamps, and report progress to the user.
@@ -106,7 +106,7 @@ Unless explicitly requested, do **not**:
 ### MVC-Inspired Layer Responsibilities
 
 1. **Model / Domain (`app/types/`, `app/utils/`):**
-   - TypeScript interfaces and types (`menu`, `product`, `sale`, `order`, `customer`, `inventory`, `user`, `role`).
+   - TypeScript interfaces and types (`menu`, `product`, `cart`, `sale`, `order`, `customer`, `inventory`, `user`, `role`).
    - JSONC parser, currency/date formatters, and pure client-side helpers.
    - Never treat client-side financial, inventory, or permission checks as authoritative security boundaries.
 2. **View (`app/layouts/`, `app/pages/`, `app/components/`):**
@@ -155,10 +155,17 @@ app/
     users/
     roles/
       PermissionMatrix.vue
+    pos/
+      ProductSearchBar.vue
+      ProductCard.vue
+      StockBadge.vue
+      CartPane.vue
+      CartLineItem.vue
   composables/
     useMenu.ts
     usePermissions.ts
     useProducts.ts
+    useCart.ts
     useSales.ts
     useUsers.ts
     useRoles.ts
@@ -203,6 +210,7 @@ app/
   services/
     api/
       client.ts
+    products.ts
     users.ts
     roles.ts
     demo/
@@ -213,6 +221,7 @@ app/
   types/
     menu.ts
     product.ts
+    cart.ts
     sale.ts
     user.ts
     role.ts
@@ -726,13 +735,133 @@ export interface UserService {
 
 ---
 
-## 7. Dashboard Overview, Tables, Forms & Safari Focus No-Zoom
+## 7. POS Terminal: Product Search, Catalog & Cart (Image, Title, Price & Available Stock)
+
+The `/pos` terminal's entire job is letting a cashier find a product and add it to the cart in seconds without overselling. Every product search result **and** every cart line item must render the same four facts together: **image** (with a graceful placeholder when missing), **title**, **price**, and **available stock**. Never render a product tile or cart row that is missing any of these four fields.
+
+### Domain Types (`app/types/product.ts`, `app/types/cart.ts`)
+
+```ts
+// app/types/product.ts
+export interface Product {
+  id: string
+  sku: string
+  barcode?: string
+  title: string
+  image?: string          // thumbnail URL; render a placeholder icon/avatar when empty, never a broken <img>
+  categoryId: string
+  price: number
+  cost?: number
+  stockOnHand: number
+  reservedStock: number    // held by unfulfilled orders/holds
+  isActive: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+// Always derive — never trust a stale/cached "availableStock" field on the product record itself.
+export function getAvailableStock(product: Product): number {
+  return Math.max(0, product.stockOnHand - product.reservedStock)
+}
+
+// app/types/cart.ts
+export interface CartItem {
+  productId: string
+  title: string            // snapshot at add-time so a later product rename doesn't retro-edit the cart
+  image?: string           // snapshot at add-time, same placeholder fallback rule as the catalog card
+  unitPrice: number         // snapshot at add-time so a later price change doesn't retro-edit the cart
+  quantity: number
+  availableStock: number    // refreshed on every add/increment so the stepper can never exceed real stock
+}
+```
+
+### Product Service Contract (`app/services/products.ts`, `app/services/demo/products.ts`)
+
+```ts
+export interface ProductListParams {
+  search?: string         // matches title, SKU, or barcode
+  categoryId?: string
+  page?: number
+  perPage?: number
+}
+
+export interface ProductService {
+  list(params: ProductListParams): Promise<Paginated<Product>>
+  get(id: string): Promise<Product>
+  findByBarcode(code: string): Promise<Product | null>
+}
+```
+
+- **Demo mode (`app/services/demo/products.ts`):** Ship at least 12 realistic fixture products spanning every stock state — a few at `0` (out of stock), a few at `1`–`5` (low stock), and the rest healthy — so in-stock, low-stock, and out-of-stock UI states are all visible without extra setup.
+
+### Cart Store Rules (`app/stores/cart.ts`)
+
+- State: `items: CartItem[]`, `discount`, `taxRate`.
+- `addItem(product: Product)`:
+  1. Compute `availableStock = getAvailableStock(product)`.
+  2. If `availableStock <= 0`, do nothing — surface the "Out of Stock" state instead; never add a zero-stock line.
+  3. If the product is already in the cart, increment its quantity by one, clamped to `availableStock`. Otherwise push a new `CartItem` snapshot (`title`, `image`, `unitPrice: product.price`, `quantity: 1`, `availableStock`).
+- `incrementQty(productId)` / `decrementQty(productId)`: clamp quantity to `[1, availableStock]`; decrementing below `1` removes the line.
+- `removeItem(productId)`, `clear()`.
+- Computed: `subtotal`, `tax`, `grandTotal`, `itemCount`.
+- **Quantity may never exceed `availableStock` at any mutation point.** This is the single authoritative guard against overselling at the register — client-side only, never a substitute for server-side stock checks on checkout.
+
+### Product Search & Catalog Grid (`app/pages/pos/index.vue`, `app/components/pos/ProductSearchBar.vue`, `app/components/pos/ProductCard.vue`)
+
+- **Search bar:** `.apple-search-input`, debounced (~200ms) search-as-you-type over `title`, `sku`, and `barcode`. A barcode scanner's Enter keystroke should resolve via `findByBarcode` and add the match directly to the cart.
+- **`ProductCard.vue` renders all four fields on every card:**
+  1. **Image:** `aspect-square` thumbnail (`object-cover`); when `product.image` is empty, render `.product-card-image-placeholder` (a neutral icon), never a broken `<img>` tag.
+  2. **Title:** `line-clamp-2`, with the full text available via a `title` attribute/tooltip.
+  3. **Price:** formatted through `app/utils/currency.ts`.
+  4. **Available-stock badge (`.stock-badge`):** `.stock-badge-in` (green, `$t('pos.inStock')`) when healthy, `.stock-badge-low` (amber, `$t('pos.lowStock')`) at or below a low-stock threshold (e.g. `<= 5`), `.stock-badge-out` (red, `$t('pos.outOfStock')`) at `0`. Always show the text label — never rely on color alone.
+  - Disable the "Add" action and apply a muted/disabled visual state when `availableStock === 0`; keep the product visible in the grid rather than hiding it.
+
+### Loading Skeleton States (Category Pills & Product Grid)
+
+While categories or products are fetching, render skeleton placeholders that mirror the real layout exactly. **A skeleton row that renders as a smeared, glowing, or illegible band of color is a bug, not a design choice** — it means a semantic/accent color or a blur filter was applied to a placeholder that has no real content yet. Follow these rules strictly:
+
+- **Neutral color only, no exceptions.** Skeletons use `bg-slate-200 dark:bg-slate-700` with `animate-pulse`. Never reuse `.stock-badge-*`, `.lang-btn-active`, `.sidebar-link-active`, or any blue/amber/rose accent class for a skeleton — those classes mean something specific on real content (low stock, active state) and are misleading noise on a placeholder.
+- **No blur filters on skeletons, ever.** Never apply `blur-*` or `backdrop-blur-*` to a skeleton element. Skeletons stay sharp-edged, solid, `animate-pulse` blocks; `backdrop-blur-md` is reserved for real floating glass surfaces (sidebar, topbar, dropdowns) layered over real content, never for a stand-in that has no content to blur.
+- **Match the real element's exact dimensions** so nothing shifts when data arrives (zero layout shift):
+  - Category pill skeleton (`.skeleton-pill`): same `h-9 rounded-full` footprint as the real category chip, varying widths (`w-16` to `w-28`) in the same `flex gap-2` row the loaded `CategoryFilter` chips occupy. Render it in the exact slot the real pills will fill — never as an extra row stacked above or below the real content.
+  - `ProductCardSkeleton.vue` mirrors `ProductCard.vue` 1:1: `.skeleton-image` (`aspect-square rounded-xl`) for the thumbnail, two short `.skeleton-text` bars for the title, one short `.skeleton-text` bar for the price. Render no stock badge at all while loading — there is no stock value yet to badge.
+- **Mutually exclusive, never both:** show 6–12 skeleton cards/pills while `isLoading` is true, then swap to the real `ProductCard.vue` / category chips the instant data resolves. Never render skeleton and real content in the same view at once.
+
+```css
+/* app/assets/css/main.css — @layer components */
+.skeleton-pill {
+  @apply h-9 rounded-full bg-slate-200 dark:bg-slate-700 animate-pulse;
+}
+
+.skeleton-image {
+  @apply w-full aspect-square rounded-xl bg-slate-200 dark:bg-slate-700 animate-pulse;
+}
+
+.skeleton-text {
+  @apply h-3 rounded-full bg-slate-200 dark:bg-slate-700 animate-pulse;
+}
+```
+
+### Cart Pane (`app/components/pos/CartPane.vue`, `app/components/pos/CartLineItem.vue`)
+
+- Each `CartLineItem.vue` mirrors the catalog card's fields: thumbnail **image** (same placeholder fallback), **title**, unit **price** plus the computed line subtotal, and the snapshot **available stock** used to bound the quantity stepper.
+- Quantity stepper (`-` / `+` buttons, `44px` minimum touch target) disables `+` and shows an inline `$t('pos.onlyNLeft', { n: availableStock })` message once `quantity === availableStock`.
+- Per-line remove button plus a "Clear cart" action with confirmation.
+- Empty state (`$t('pos.emptyCart')`) when no items have been added.
+
+### i18n Keys (`pos` Namespace)
+
+Add to both `app/locales/en.json` and `app/locales/km.json`: `pos.searchPlaceholder`, `pos.addToCart`, `pos.inStock`, `pos.lowStock`, `pos.outOfStock`, `pos.onlyNLeft`, `pos.remove`, `pos.clearCart`, `pos.subtotal`, `pos.tax`, `pos.discount`, `pos.grandTotal`, `pos.checkout`, `pos.emptyCart` (see Section 9 for the full key blocks).
+
+---
+
+## 8. Dashboard Overview, Tables, Forms & Safari Focus No-Zoom
 
 ### Dashboard Overview & Management Pages
 
 - **Overview (`/`):** Gross sales, net sales, transaction count, average order value, low-stock alerts, sales trend chart, recent transactions, best-selling products, and quick actions filtered by module `permission.view`.
 - **Tables:** Consistent page heading, module badge, gated primary action button, search/filter bar, `.table-container` horizontal scroll wrapper, status badges (always with text label, never color-only), pagination, loading/empty/error states with retry, and destructive confirmation dialogs.
-- **POS Correctness:** Keep order, payment, and fulfillment statuses distinct. Distinguish stock on hand, reserved stock, and available stock.
+- **POS Correctness:** Keep order, payment, and fulfillment statuses distinct. Distinguish stock on hand, reserved stock, and available stock (see Section 7 for the product card, cart, and stock-badge contract that depends on this distinction).
 
 ### Apple-Style Input Design & Safari Auto-Zoom Prevention
 
@@ -741,7 +870,7 @@ export interface UserService {
 
 ---
 
-## 8. Internationalization (`@nuxtjs/i18n`) — English (`en`) & Khmer (`km`)
+## 9. Internationalization (`@nuxtjs/i18n`) — English (`en`) & Khmer (`km`)
 
 Support **English (`en`)** and **Khmer (`km`, ខ្មែរ)** across all navigation items, topbar titles, buttons, table headers, statuses, and messages. Never hard-code visible English or Khmer strings in Vue templates—always use `$t()` or `t()`.
 
@@ -799,6 +928,22 @@ export default defineNuxtConfig({
     "openMenu": "Open navigation menu",
     "posSettings": "POS Settings Menu",
     "exit": "Exit"
+  },
+  "pos": {
+    "searchPlaceholder": "Search by name, SKU, or barcode…",
+    "addToCart": "Add",
+    "inStock": "In Stock",
+    "lowStock": "Low Stock",
+    "outOfStock": "Out of Stock",
+    "onlyNLeft": "Only {n} left",
+    "remove": "Remove",
+    "clearCart": "Clear Cart",
+    "subtotal": "Subtotal",
+    "tax": "Tax",
+    "discount": "Discount",
+    "grandTotal": "Total",
+    "checkout": "Checkout",
+    "emptyCart": "Cart is empty"
   },
   "theme": {
     "light": "Light",
@@ -886,6 +1031,22 @@ export default defineNuxtConfig({
     "posSettings": "ម៉ឺនុយការកំណត់ POS",
     "exit": "ចាកចេញ"
   },
+  "pos": {
+    "searchPlaceholder": "ស្វែងរកតាមឈ្មោះ លេខកូដ ឬបាកូដ…",
+    "addToCart": "បញ្ចូល",
+    "inStock": "មានស្តុក",
+    "lowStock": "ស្តុកទាប",
+    "outOfStock": "អស់ស្តុក",
+    "onlyNLeft": "នៅសល់ត្រឹម {n}",
+    "remove": "លុបចេញ",
+    "clearCart": "សម្អាតកន្ត្រក",
+    "subtotal": "សរុបរង",
+    "tax": "ពន្ធ",
+    "discount": "បញ្ចុះតម្លៃ",
+    "grandTotal": "សរុប",
+    "checkout": "ទូទាត់ប្រាក់",
+    "emptyCart": "កន្ត្រកទទេ"
+  },
   "theme": {
     "light": "ភ្លឺ",
     "dark": "ងងឹត",
@@ -944,7 +1105,7 @@ export default defineNuxtConfig({
 
 ---
 
-## 9. Preferences Store, i18n Composable & Light / Dark Theme System
+## 10. Preferences Store, i18n Composable & Light / Dark Theme System
 
 Use SSR-safe cookie + `localStorage` persistence in `app/stores/preferences.ts` so both SSR hydration and client transitions stay synchronized without hydration mismatches or theme flashes.
 
@@ -1122,7 +1283,7 @@ Call `useTheme()` and `useLocale()` in `app/app.vue` so the active theme class a
 
 ---
 
-## 10. Centralized Tailwind CSS (`app/assets/css/main.css` with `@apply` & Dark Mode)
+## 11. Centralized Tailwind CSS (`app/assets/css/main.css` with `@apply` & Dark Mode)
 
 **Mandatory Rule:** Centralize all Tailwind CSS classes in `app/assets/css/main.css` using `@apply`. Every component class must include `dark:` companions. Never `@apply` one custom class inside another custom class in Tailwind v4.
 
@@ -1353,18 +1514,91 @@ export default {
   .modal-card {
     @apply w-full max-w-md rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-700/90 p-6 shadow-2xl;
   }
+
+  .product-card {
+    @apply flex flex-col rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-3 shadow-sm transition-all duration-150 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500;
+  }
+
+  .product-card-disabled {
+    @apply opacity-50 cursor-not-allowed hover:shadow-sm;
+  }
+
+  .product-card-image {
+    @apply w-full aspect-square rounded-xl object-cover bg-slate-100 dark:bg-slate-800;
+  }
+
+  .product-card-image-placeholder {
+    @apply w-full aspect-square rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 dark:text-slate-500;
+  }
+
+  .product-card-title {
+    @apply mt-2 text-sm font-medium text-slate-900 dark:text-slate-100 line-clamp-2;
+  }
+
+  .product-card-price {
+    @apply mt-1 text-sm font-semibold text-slate-900 dark:text-white;
+  }
+
+  .stock-badge {
+    @apply mt-1.5 inline-flex items-center gap-1 self-start px-2 py-0.5 rounded-full text-[11px] font-semibold;
+  }
+
+  .stock-badge-in {
+    @apply bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400;
+  }
+
+  .stock-badge-low {
+    @apply bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400;
+  }
+
+  .stock-badge-out {
+    @apply bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400;
+  }
+
+  .cart-line-item {
+    @apply flex items-center gap-3 py-3 border-b border-slate-100 dark:border-slate-800 last:border-b-0;
+  }
+
+  .cart-line-item-image {
+    @apply w-12 h-12 shrink-0 rounded-xl object-cover bg-slate-100 dark:bg-slate-800;
+  }
+
+  .cart-line-item-image-placeholder {
+    @apply w-12 h-12 shrink-0 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 dark:text-slate-500;
+  }
+
+  .qty-stepper {
+    @apply inline-flex items-center gap-2 rounded-xl bg-slate-100 dark:bg-slate-800 p-1;
+  }
+
+  .qty-stepper-btn {
+    @apply inline-flex items-center justify-center min-w-[36px] min-h-[36px] rounded-lg text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors duration-150;
+  }
+
+  /* Loading skeletons — neutral color + animate-pulse ONLY. Never an accent color, never blur-*. */
+  .skeleton-pill {
+    @apply h-9 rounded-full bg-slate-200 dark:bg-slate-700 animate-pulse;
+  }
+
+  .skeleton-image {
+    @apply w-full aspect-square rounded-xl bg-slate-200 dark:bg-slate-700 animate-pulse;
+  }
+
+  .skeleton-text {
+    @apply h-3 rounded-full bg-slate-200 dark:bg-slate-700 animate-pulse;
+  }
 }
 ```
 
 ---
 
-## 11. Phase-by-Phase Development Protocol & Progress Tracking (`PROGRESS.md`)
+## 12. Phase-by-Phase Development Protocol & Progress Tracking (`PROGRESS.md`)
 
 To guarantee zero-bug delivery, avoid context overload, and provide complete visibility to the user, development must proceed **strictly phase-by-phase**. Never attempt to scaffold, implement, and wire all modules in a single unbounded step.
 
 ---
 
-### 11.1 The Phase-by-Phase Execution Lifecycle
+### 12.1 The Phase-by-Phase Execution Lifecycle
 
 For every phase (Phase 1 through Phase 7), follow this 4-step lifecycle:
 
@@ -1394,7 +1628,7 @@ flowchart LR
 
 ---
 
-### 11.2 Standard `PROGRESS.md` Specification & Template
+### 12.2 Standard `PROGRESS.md` Specification & Template
 
 Every project created or managed with this skill must contain a `PROGRESS.md` file in the project root. The agent must create this file during Phase 1 and maintain it diligently through Phase 7.
 
@@ -1428,7 +1662,7 @@ Every project created or managed with this skill must contain a `PROGRESS.md` fi
 | **01** | Foundation & Layout Shell | 🟢 Completed | Nuxt 4 init, `main.css`, `menu.jsonc`, `default.vue`, `AppSidebar`, `AppTopbar` | [x] |
 | **02** | i18n & Light/Dark Theme | 🟡 In Progress | `@nuxtjs/i18n`, `en.json`, `km.json`, `useTheme`, `useLocale`, Topbar Switchers | [ ] |
 | **03** | Dashboard Overview | ⚪ Pending | Overview stats cards, sales chart, recent transactions, best sellers | [ ] |
-| **04** | Core POS Terminal & Catalog | ⚪ Pending | `/pos` terminal, cart store, products, categories, sales, orders | [ ] |
+| **04** | Core POS Terminal & Catalog | ⚪ Pending | `/pos` terminal, product cards & cart lines (image/title/price/stock), cart store, products, categories, sales, orders | [ ] |
 | **05** | Users & Roles CRUD Module | ⚪ Pending | Users list/form, Roles list/form, `PermissionMatrix.vue`, delete safety | [ ] |
 | **06** | Optional Laravel API | ⚪ Pending | API client, live services, backend permission mapping (when requested) | [ ] |
 | **07** | Quality Audit & Final Build | ⚪ Pending | Safari no-zoom audit, responsive checks (Mobile/Tablet/PC), production build | [ ] |
@@ -1475,9 +1709,12 @@ Every project created or managed with this skill must contain a `PROGRESS.md` fi
 
 ### Phase 4 — Core POS Terminal & Catalog/Order Modules
 - [ ] Build full-screen `app/pages/pos/index.vue` without sidebar, using 100% viewport width.
-- [ ] Build `app/stores/cart.ts` (items, quantities, subtotal, tax, discount, grand total).
-- [ ] Implement fast product catalog grid with barcode / search query filter.
-- [ ] Implement cart pane with quantity controls, line item discounts, and clear cart action.
+- [ ] Define `app/types/product.ts` (with `getAvailableStock`) and `app/types/cart.ts`.
+- [ ] Build `app/services/products.ts` / `app/services/demo/products.ts` with >= 12 fixtures spanning out-of-stock, low-stock, and healthy-stock states.
+- [ ] Build `app/stores/cart.ts` (items, quantities, subtotal, tax, discount, grand total) with quantity clamped to each item's `availableStock`.
+- [ ] Build `app/components/pos/ProductSearchBar.vue` with debounced search/barcode lookup and `app/components/pos/ProductCard.vue` rendering **image (with placeholder fallback), title, price, and an available-stock badge** (`.stock-badge-in` / `-low` / `-out`).
+- [ ] Build `ProductCardSkeleton.vue` and category-pill skeletons using `.skeleton-image` / `.skeleton-text` / `.skeleton-pill` (neutral `slate` + `animate-pulse` only — no accent color, no `blur-*`) shown while `isLoading`, swapped for real content the instant data resolves.
+- [ ] Build `app/components/pos/CartPane.vue` and `app/components/pos/CartLineItem.vue` mirroring the same image/title/price fields, with a quantity stepper disabled once `quantity === availableStock`.
 - [ ] Build Checkout Modal with payment method selector (Cash, Card, QR Code) and receipt summary.
 - [ ] Build `app/pages/products/index.vue` with search, category filter, and stock level badges.
 - [ ] Build `app/pages/categories/index.vue` with category tree and product count.
@@ -1540,7 +1777,7 @@ Every project created or managed with this skill must contain a `PROGRESS.md` fi
 
 ---
 
-### 11.3 Detailed Phase Breakdown & Quality Gates
+### 12.3 Detailed Phase Breakdown & Quality Gates
 
 #### Phase 1: Foundation, Layout Shell & POS Exit Mode
 - **Goal:** Set up the project, base styling, declarative navigation, and zero-bug layout shell.
@@ -1578,6 +1815,8 @@ Every project created or managed with this skill must contain a `PROGRESS.md` fi
   2. Items can be added to the cart, quantities adjusted, and subtotal/tax/totals calculated accurately.
   3. Checkout modal processes payment simulation and resets the cart cleanly.
   4. All inputs, search bars, and quantity steppers compute to `>= 16px` on mobile/tablet (preventing iOS Safari auto-zoom).
+  5. Every product card and cart line item displays **image** (or placeholder), **title**, **price**, and an **available-stock badge**; the quantity stepper can never exceed the product's available stock, and zero-stock products show a disabled "Out of Stock" state instead of being hidden.
+  6. Category-pill and product-card loading skeletons render as neutral, sharp-edged `animate-pulse` blocks matching the real content's dimensions — never an accent-colored or blurred band, and never shown at the same time as the real, loaded content.
 
 #### Phase 5: Users & Roles CRUD Module with Permission Matrix & Remaining Modules
 - **Goal:** Deliver staff administration with role-based permissions and complete the remaining management modules.
@@ -1609,7 +1848,7 @@ Every project created or managed with this skill must contain a `PROGRESS.md` fi
 
 ---
 
-### 11.4 Responsive Viewport Verification Standards
+### 12.4 Responsive Viewport Verification Standards
 
 1. **Mobile (`< 768px`):**
    - Floating sidebar is hidden off-screen (`-translate-x-[calc(100%+1.5rem)]`) and opens as a floating drawer over `.sidebar-backdrop` (`z-30`).
@@ -1626,7 +1865,7 @@ Every project created or managed with this skill must contain a `PROGRESS.md` fi
 
 ---
 
-### 11.5 Phase Completion Reporting Protocol
+### 12.5 Phase Completion Reporting Protocol
 
 At the end of every phase, present a standardized progress summary to the user:
 
@@ -1651,7 +1890,7 @@ At the end of every phase, present a standardized progress summary to the user:
 
 ---
 
-## 12. Verification and Completion Report
+## 13. Verification and Completion Report
 
 When all requested phases are completed, run the final verification checks (`npm run lint`, `npm run typecheck`, `npm run build`) and report:
 
@@ -1666,15 +1905,16 @@ When all requested phases are completed, run the final verification checks (`npm
 
 ---
 
-## 13. Editing This Skill
+## 14. Editing This Skill
 
 Update the relevant section when project requirements change:
-- **Design tokens & CSS classes:** Section 10 (`app/assets/css/main.css`).
+- **Design tokens & CSS classes:** Section 11 (`app/assets/css/main.css`).
 - **Sidebar navigation & permissions:** Section 5 (`app/config/menu.jsonc`).
 - **Users & Roles CRUD rules:** Section 6.
-- **i18n translation keys:** Section 8 (`app/locales/en.json` & `km.json`).
-- **Theme tokens:** Section 9 & 10.
-- **Phase tasks & milestones:** Section 11 (`PROGRESS.md` template & breakdown).
-- **Backend API contracts:** Section 2 & 6.
+- **Product catalog, search & cart rules (image, title, price, available stock):** Section 7.
+- **i18n translation keys:** Section 9 (`app/locales/en.json` & `km.json`).
+- **Theme tokens:** Section 10 & 11.
+- **Phase tasks & milestones:** Section 12 (`PROGRESS.md` template & breakdown).
+- **Backend API contracts:** Section 2, 6 & 7.
 
 **Final Rule:** If no project exists, set up Nuxt 4 and build the frontend only. If a project exists, inspect it and continue from its current state. Always develop **strictly phase-by-phase**, maintain a live `PROGRESS.md` tracker, keep all Tailwind styling centralized in `main.css` with `@apply` and `dark:` companions, enforce Apple-style inputs that prevent Safari auto-zoom (`text-base lg:text-sm`), render the floating left sidebar driven by `menu.jsonc` with module names and view permissions, provide full Users & Roles CRUD with `view/create/edit/delete` permission gates, hide the sidebar on the POS screen with a gear icon dropdown Exit to admin, support **English and Khmer** via `@nuxtjs/i18n`, and verify responsive behavior across mobile, tablet, and PC.
