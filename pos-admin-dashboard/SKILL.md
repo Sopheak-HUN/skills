@@ -263,6 +263,37 @@ When on `/pos` or `/pos/**`:
 3. **Z-Index Scale:** Sticky Topbar `z-20` → Mobile Backdrop `z-30` → Floating Sidebar `z-40` → POS Gear Dropdown & Modals `z-50`.
 4. **SSR Hydration Safety:** Initialize layout flags via `useState` with deterministic defaults (`false`), never reading `window.innerWidth` during SSR setup.
 
+### Modal & Dialog Dismissal: Backdrop-Click Protection
+
+Every modal in the app (`.modal-backdrop` / `.modal-card` — delete confirmations, the checkout modal, create/edit dialogs, and any other `.modal-card` surface) is **protected**: clicking the backdrop must never close it. A misclick must never silently discard an in-progress form, a destructive confirmation, or an active checkout.
+
+- **Never bind a close handler to `.modal-backdrop`'s `@click`.** This is different from `.sidebar-backdrop` (a non-destructive drawer, which does close on outside click) and `.pos-gear-dropdown` (a quick menu, which also closes on outside click) — `.modal-backdrop` renders as an inert scrim with no dismiss behavior of its own.
+- **The only ways to close a modal:**
+  1. An explicit, visible "Cancel" / "Close" button inside `.modal-card`.
+  2. A corner "✕" icon button (`.btn-icon`, `aria-label` from `common.cancel`) inside `.modal-card`.
+  3. Successfully completing the modal's primary action (confirmed delete, completed checkout, saved form).
+- **`Escape` key:** may still close a simple, non-destructive dialog, but must be disabled while an async action is in flight (mid-checkout payment simulation, mid-delete request) so a stray keypress can't abandon an operation that's already running.
+- **Reference pattern** — no `@click` on `.modal-backdrop`; only the ✕ and Cancel buttons call `close()`:
+
+```vue
+<div class="modal-backdrop" role="presentation">
+  <div class="modal-card" role="dialog" aria-modal="true" :aria-labelledby="titleId">
+    <div class="flex items-center justify-between mb-4">
+      <h2 :id="titleId" class="text-base font-semibold">{{ title }}</h2>
+      <button type="button" class="btn-icon" :aria-label="t('common.cancel')" @click="close">✕</button>
+    </div>
+
+    <!-- modal body -->
+
+    <div class="flex justify-end gap-2 mt-6">
+      <button type="button" class="btn-secondary" @click="close">{{ t('common.cancel') }}</button>
+      <button type="button" class="btn-primary" :disabled="isSubmitting" @click="confirm">{{ t('common.save') }}</button>
+    </div>
+  </div>
+</div>
+<!-- Note: .modal-backdrop intentionally has NO @click handler. -->
+```
+
 ### Reference Layout Implementation (`app/layouts/default.vue` & `app/components/layout/AppTopbar.vue`)
 
 ```vue
@@ -727,7 +758,7 @@ export interface UserService {
 - **Routes:** `pages/users/index.vue`, `pages/users/new.vue`, `pages/users/[id].vue`, `pages/roles/index.vue`, `pages/roles/new.vue`, `pages/roles/[id].vue`.
 - **Users List & Form:** Filter via `.apple-search-input` and `.apple-select` synced with URL query params. Gate "New User" on `users.create` and row actions on `users.edit` / `users.delete`. Render password fields only on create or explicit "Reset password" toggle (`autocomplete="new-password"`).
 - **Permission Matrix (`app/components/roles/PermissionMatrix.vue`):** Build rows dynamically from `menu.jsonc` (`const ACTIONS = ['view', 'create', 'edit', 'delete'] as const`) so the matrix never drifts from sidebar modules. Include per-row and per-column "Select all" toggles and a live granted-permissions count using `.permission-matrix` and `.apple-checkbox`.
-- **Delete & Safety Guards:** Require confirmation modal (`.modal-backdrop` / `.modal-card`) naming the target record. Block and explain in the UI when attempting to:
+- **Delete & Safety Guards:** Require confirmation modal (`.modal-backdrop` / `.modal-card`) naming the target record. Clicking the backdrop must not close it (see Section 4, "Modal & Dialog Dismissal") — only the Cancel/✕ button or confirming the delete does. Block and explain in the UI when attempting to:
   1. Delete the currently signed-in user's own account.
   2. Delete or deactivate the last active user holding `users.edit`.
   3. Rename or delete a system role (`isSystem: true`).
@@ -1817,6 +1848,7 @@ Every project created or managed with this skill must contain a `PROGRESS.md` fi
   4. All inputs, search bars, and quantity steppers compute to `>= 16px` on mobile/tablet (preventing iOS Safari auto-zoom).
   5. Every product card and cart line item displays **image** (or placeholder), **title**, **price**, and an **available-stock badge**; the quantity stepper can never exceed the product's available stock, and zero-stock products show a disabled "Out of Stock" state instead of being hidden.
   6. Category-pill and product-card loading skeletons render as neutral, sharp-edged `animate-pulse` blocks matching the real content's dimensions — never an accent-colored or blurred band, and never shown at the same time as the real, loaded content.
+  7. Clicking the checkout modal's backdrop does not close it mid-checkout — only the Cancel/✕ button, or a completed/cancelled payment, dismisses it.
 
 #### Phase 5: Users & Roles CRUD Module with Permission Matrix & Remaining Modules
 - **Goal:** Deliver staff administration with role-based permissions and complete the remaining management modules.
