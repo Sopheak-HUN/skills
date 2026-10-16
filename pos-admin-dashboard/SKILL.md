@@ -1,6 +1,6 @@
 ---
 name: pos-admin-dashboard
-description: Design, initialize, build, and iteratively improve a POS admin dashboard using Nuxt 4, Tailwind CSS (@apply in main.css), Pinia, a floating left sidebar driven by a JSONC menu config with module names and view permissions, a users & roles CRUD module with role-based action permissions (view/create/edit/delete), full-screen POS mode without sidebar and with a gear icon dropdown to exit to admin, Apple-style inputs that prevent iOS Safari auto-zoom on focus, and bug-free responsive layouts across mobile, tablet, and PC. Use for POS dashboard layouts, products, sales, orders, inventory, customers, reports, users and roles CRUD, permission management, settings, and UI refinement.
+description: Design, initialize, build, and iteratively improve a POS admin dashboard using Nuxt 4, Tailwind CSS (@apply in main.css), Pinia, a floating left sidebar driven by a JSONC menu config with module names and view permissions, a users & roles CRUD module with role-based action permissions (view/create/edit/delete), full-screen POS mode without sidebar and with a gear icon dropdown to exit to admin, Apple-style inputs that prevent iOS Safari auto-zoom on focus, bug-free responsive layouts across mobile, tablet, and PC, i18n with English and Khmer locales (@nuxtjs/i18n), a Light/Dark dual-theme system driven by a Pinia preferences store and CSS custom properties, and a structured phase-by-phase development workflow with a live PROGRESS.md execution tracker. Use for POS dashboard layouts, products, sales, orders, inventory, customers, reports, users and roles CRUD, permission management, settings, and UI refinement.
 user-invocable: true
 ---
 
@@ -16,7 +16,12 @@ If no project exists, initialize a Nuxt 4 frontend project and configure the req
 
 If a project already exists, inspect its structure and continue using its established conventions. Do not recreate or overwrite an existing project.
 
-The dashboard must support realistic retail workflows, accessible interactions, reusable components, centralized `@apply` styling in `main.css`, Apple-style input controls that prevent iOS/iPadOS Safari auto-zoom on focus, a floating left sidebar driven by a `.jsonc` menu configuration with module and view-permission metadata, a users and roles management module with full CRUD and role-based action permissions (`view` / `create` / `edit` / `delete`), a full-screen POS terminal view (with no sidebar and a gear icon dropdown menu featuring an "Exit" item that redirects to the admin dashboard), and strict zero-bug layout rules across mobile, tablet, and PC.
+The dashboard must support realistic retail workflows, accessible interactions, reusable components, centralized `@apply` styling in `main.css`, Apple-style input controls that prevent iOS/iPadOS Safari auto-zoom on focus, a floating left sidebar driven by a `.jsonc` menu configuration with module and view-permission metadata, a users and roles management module with full CRUD and role-based action permissions (`view` / `create` / `edit` / `delete`), a full-screen POS terminal view (with no sidebar and a gear icon dropdown menu featuring an "Exit" item that redirects to the admin dashboard), **i18n with English (`en`) and Khmer (`km`) locales powered by `@nuxtjs/i18n`**, **a Light / Dark dual-theme system driven by the Pinia preferences store and CSS custom properties**, and strict zero-bug layout rules across mobile, tablet, and PC.
+
+**Execution Rule: Strict Phase-by-Phase Development & Live Progress Tracking.**
+Development must proceed phase by phase. Never jump ahead or dump all code in a single massive step without completing, verifying, and recording progress. At the start of Phase 1, create `PROGRESS.md` in the project root. After each phase, verify exit criteria, update `PROGRESS.md` with status and completion timestamps, and report progress to the user.
+
+---
 
 ## 1. Project Detection and Automatic Setup
 
@@ -25,145 +30,100 @@ Before implementing features or modifying layouts, determine whether a project a
 ### Case A: An existing project is available
 
 1. Inspect the repository tree and `package.json`.
-2. Inspect `nuxt.config.ts`, the lockfile, Tailwind configuration, and the existing application directory.
-3. Identify the installed Nuxt, Vue, Tailwind CSS (v3 vs v4), and Pinia versions.
-4. Inspect existing layouts (`app/layouts/default.vue`), `app.vue`, pages, components, composables, stores, configs, API services, and `main.css`.
-5. Preserve working code, `<slot />` outlets, and unrelated user changes.
-6. Reuse existing dependencies and conventions.
-7. Implement the requested layout or feature modification without breaking existing routes or state.
+2. Inspect `PROGRESS.md` if present to identify previously completed phases and resume from the active milestone.
+3. Inspect `nuxt.config.ts`, the lockfile, Tailwind configuration, and the existing application directory.
+4. Identify the installed Nuxt, Vue, Tailwind CSS (v3 vs v4), Pinia, and `@nuxtjs/i18n` versions.
+5. Inspect existing layouts (`app/layouts/default.vue`), `app.vue`, pages, components, composables, stores, configs, locales, API services, and `main.css`.
+6. Preserve working code, `<slot />` outlets, and unrelated user changes.
+7. Reuse existing dependencies and conventions.
+8. Implement the requested layout or feature modification phase-by-phase without breaking existing routes or state, updating `PROGRESS.md` as each milestone is verified.
 
 Do not reinstall dependencies or recreate configuration files unless required.
 
 ### Case B: The directory is empty or no Nuxt project exists
 
-Automatically initialize a frontend-only Nuxt 4 project.
-
-Do not stop at providing setup instructions. Execute the available project initialization commands when the environment permits.
-
-Recommended initialization:
+Automatically initialize a frontend-only Nuxt 4 project. Do not stop at providing setup instructions—execute the available project initialization commands when the environment permits:
 
 ```bash
 npm create nuxt@latest pos-admin-dashboard
 ```
 
-If the current working directory is already the intended project directory, initialize there rather than creating a nested project unnecessarily. Use the official Nuxt initialization options supported by the available CLI.
+If the current working directory is already the intended project directory, initialize there rather than creating a nested project unnecessarily.
 
 Install and configure:
 
-- Nuxt 4.
-- Vue 3 and TypeScript support.
-- Tailwind CSS using the integration compatible with the selected Tailwind version.
-- Pinia and the appropriate Nuxt integration.
+- **Node.js:** `>= 24.22.0 LTS`
+- **Nuxt:** `4.6.1` (with Vue 3 and TypeScript support)
+- **Tailwind CSS:** Compatible Nuxt integration with `darkMode: 'class'`
+- **Pinia:** `@pinia/nuxt` and `pinia`
+- **i18n:** `@nuxtjs/i18n` (`en` and `km` locales)
 - Only the additional libraries required for the requested features.
 
-Use the package manager indicated by the existing lockfile. For a new project, use npm unless the user specifies another package manager.
+Use the package manager indicated by the existing lockfile (`npm` by default for new projects unless specified otherwise).
 
 After initialization:
 
-1. Verify the generated project structure.
-2. Confirm the Nuxt and Tailwind CSS versions.
-3. Configure Tailwind CSS and Pinia.
-4. Set up `app/assets/css/main.css` with all component, layout, POS full-screen, gear dropdown, and Apple-style input classes defined via `@apply`.
-5. Create `app/config/menu.jsonc` with the menu structure, module names, and view permissions.
-6. Create the application layout with the floating left sidebar for admin pages, full-screen sidebar-free layout for the POS screen, and gear icon dropdown menu with Exit to admin.
-7. Implement the dashboard using realistic demo data.
-8. Add feature pages and stores as required.
-9. Verify responsive layouts on mobile, tablet, and PC viewports, including Safari focus no-zoom behavior.
-10. Run the available type-check, lint, and production-build commands.
+1. Create and initialize `PROGRESS.md` in the project root using the standard template to track milestones, tasks, and verification status across Phases 1 through 7.
+2. Verify the generated project structure and confirm Nuxt and Tailwind CSS versions.
+3. Configure Tailwind CSS (`darkMode: 'class'`), Pinia, and `@nuxtjs/i18n` (`en` and `km` locales with `app/locales/en.json` and `app/locales/km.json`).
+4. Set up `app/assets/css/main.css` with Light/Dark CSS custom property tokens and all component, layout, permission matrix, POS full-screen, gear dropdown, theme/language switcher, and Apple-style input classes defined via `@apply` with `dark:` companions.
+5. Create `app/config/menu.jsonc` with the menu structure, module names, and `view` / `create` / `edit` / `delete` permissions.
+6. Create `app/stores/preferences.ts`, `app/composables/useTheme.ts`, `app/composables/useLocale.ts`, `LangSwitcher.vue`, and `ThemeToggle.vue`.
+7. Create the application layout with the floating left sidebar for admin pages, full-screen sidebar-free layout for the POS screen, and gear icon dropdown menu with Exit to admin.
+8. Implement the dashboard, POS terminal, and Users & Roles CRUD module phase-by-phase using realistic demo data.
+9. Verify responsive layouts on mobile, tablet, and PC viewports, including Safari focus no-zoom behavior (`>= 16px`).
+10. Run the available type-check, lint, and production-build commands, updating `PROGRESS.md` with actual results.
 
 If command execution or package installation is unavailable, create the required source and configuration files where possible, then clearly report what could not be executed.
 
-### Strict setup boundaries
+### Strict Setup Boundaries
 
-Unless explicitly requested, do not:
+Unless explicitly requested, do **not**:
 
-- Create or install a Laravel backend.
-- Create a database or database migrations.
-- Configure Docker or Kubernetes.
-- Configure Nginx, a production server, or CI/CD.
+- Create or install a Laravel backend, database, or migrations.
+- Configure Docker, Kubernetes, Nginx, a production server, or CI/CD.
 - Generate backend controllers, models, or API routes.
 - Introduce Bootstrap into this Tailwind project.
 - Scatter inline Tailwind utility strings across Vue templates when they belong in `main.css` via `@apply`.
 - Install unnecessary component libraries or dependencies.
 - Replace an existing project with a new scaffold.
+- Add a third language beyond `en` and `km`.
+- Add more than two themes (`light` / `dark`).
 
-The frontend should run independently with clearly identified demo data until a real API is configured.
+---
 
-## 2. Preferred Technology Stack
+## 2. Technology Stack & MVC-Inspired Frontend Architecture
 
-Use these defaults for new projects:
+### Core Stack Defaults
 
-- Nuxt 4.
-- Vue 3 Composition API.
-- TypeScript.
-- Tailwind CSS with all semantic classes centralized in `app/assets/css/main.css` using `@apply`.
-- JSONC (`app/config/menu.jsonc`) for declarative sidebar menu configuration with module and permission definitions.
-- Pinia for shared client-side state.
-- Nuxt file-based routing.
-- Composables for feature-level application logic (including menu parsing and permission filtering).
-- Service modules for API communication when needed.
-- Laravel as a future or existing API provider, not as part of automatic setup.
+- **Framework:** Nuxt 4 (`<script setup lang="ts">`, file-based routing, SSR-safe composables).
+- **Styling:** Tailwind CSS centralized in `app/assets/css/main.css` using `@apply`, `darkMode: 'class'`, and CSS custom properties (`--color-*`).
+- **Menu Configuration:** JSONC (`app/config/menu.jsonc`) with module and permission definitions.
+- **State Management:** Pinia (`auth`, `cart`, `preferences`, `users`, `roles`).
+- **Internationalization:** `@nuxtjs/i18n` with `en` (English) and `km` (ខ្មែរ / Khmer) synced with `preferencesStore.locale`.
+- **Theme System:** Light / Dark toggled via `preferencesStore.theme`, persisted to storage/cookie, and synced to `<html class="dark">`.
 
-Follow the actual versions and conventions in the repository. Do not copy configuration syntax from an incompatible major version.
+### MVC-Inspired Layer Responsibilities
 
-## 3. MVC-Inspired Frontend Architecture
+1. **Model / Domain (`app/types/`, `app/utils/`):**
+   - TypeScript interfaces and types (`menu`, `product`, `sale`, `order`, `customer`, `inventory`, `user`, `role`).
+   - JSONC parser, currency/date formatters, and pure client-side helpers.
+   - Never treat client-side financial, inventory, or permission checks as authoritative security boundaries.
+2. **View (`app/layouts/`, `app/pages/`, `app/components/`):**
+   - Floating sidebar shell for admin routes; full-screen sidebar-free shell with gear dropdown for `/pos`.
+   - Reusable Vue components using semantic class names from `main.css` and `$t()` translation keys.
+3. **Controller / Application Layer (`app/composables/`):**
+   - Coordinate menu parsing and permission filtering (`useMenu`, `usePermissions`), theme/locale toggling (`useTheme`, `useLocale`), form validation, and store/service orchestration (`useUsers`, `useRoles`, `useProducts`, `useSales`).
+4. **Store (`app/stores/`):**
+   - Typed Pinia stores for shared state. Keep temporary UI state local to components.
+   - Never store API secrets, passwords, or raw payment credentials in Pinia.
+   - Update store state only from confirmed service results, never optimistically on button click.
+5. **Service / API Layer (`app/services/`):**
+   - HTTP client and typed service contracts (`users`, `roles`, `products`, `sales`) with separate demo implementations (`app/services/demo/*`) so switching from in-memory demo mode to Laravel requires zero page changes.
 
-Use an MVC-inspired structure adapted to Nuxt and Vue.
+---
 
-### Model / Domain
-
-Responsible for:
-
-- TypeScript interfaces and types (including menu items, module identifiers, and permission rules).
-- Product, order, customer, inventory, sales, user, and role domain definitions.
-- Enums and domain-specific formatting helpers.
-- Pure business rules that can safely run on the client.
-
-Do not treat client-side financial, inventory, or permission checks as authoritative security boundaries.
-
-### View
-
-Responsible for:
-
-- Nuxt pages.
-- Layouts (floating sidebar shell for admin routes; full-screen sidebar-free shell with gear dropdown for `/pos`).
-- Reusable Vue components using clean semantic class names defined in `main.css`.
-- Rendering data, displaying errors, and emitting user actions.
-
-Keep complex workflows and long Tailwind utility chains out of page templates.
-
-### Controller / Application Layer
-
-Use composables or feature-level action modules to coordinate:
-
-- User interactions.
-- Menu loading from `menu.jsonc` and filtering by module and view permission.
-- Form validation.
-- API requests.
-- Store updates.
-- Loading and error states.
-
-### Store
-
-Use Pinia for shared state and workflows across components or routes:
-
-- Cart and checkout UI state.
-- Active register session when applicable.
-- Authentication, active user role, and granted permissions list (e.g., `permissions: string[]`).
-- Users and roles collections for the CRUD module (items, pagination, filters, loading/saving flags, last error).
-- Sidebar collapse/drawer state and user preferences.
-- Shared product or order data when caching is useful.
-
-### Service / API Layer
-
-Responsible for:
-
-- HTTP communication, request/response types, consistent error handling, and API operation definitions.
-- Separate demo-data modules and feature services when no backend exists. Avoid embedding mock data directly in large page components.
-
-## 4. Recommended Project Structure
-
-Adapt the structure to the actual Nuxt 4 conventions and generated scaffold:
+## 3. Recommended Project Structure
 
 ```text
 app/
@@ -172,10 +132,15 @@ app/
       main.css
   config/
     menu.jsonc
+  locales/
+    en.json           # English translations
+    km.json           # Khmer translations
   components/
     layout/
       AppSidebar.vue
       AppTopbar.vue
+      LangSwitcher.vue
+      ThemeToggle.vue
     shared/
       StatCard.vue
       StatusBadge.vue
@@ -197,6 +162,8 @@ app/
     useSales.ts
     useUsers.ts
     useRoles.ts
+    useTheme.ts
+    useLocale.ts
   layouts/
     default.vue
   pages/
@@ -253,64 +220,39 @@ app/
     jsonc.ts
     currency.ts
     dates.ts
+PROGRESS.md        # Live project progress & phase execution tracker
 nuxt.config.ts
+tailwind.config.ts
 package.json
 ```
 
-## 5. Pinia State Management
+---
 
-1. Define typed state, getters, and actions.
-2. Keep temporary UI state local to the relevant component.
-3. Avoid duplicating the same state across pages, composables, and stores.
-4. Do not store API secrets, passwords, or sensitive payment data in Pinia.
-5. Treat persisted client state as untrusted.
-6. Handle loading, errors, and stale data explicitly.
-7. Follow Nuxt SSR-safe state-management patterns.
-8. Keep API transport logic in a service layer where appropriate.
-9. Never treat client-side prices, discounts, totals, inventory, or permissions as authoritative on the backend.
-10. Update state from confirmed operation results, not merely from button clicks.
-
-## 6. Visual Design Direction, Floating Left Sidebar, POS Full-Screen Mode, and Zero-Bug Layout Protocol
-
-Build a polished retail back-office interface using a restrained light theme by default unless the project already has a defined design system.
+## 4. Layout Architecture: Floating Sidebar, POS Full-Screen Mode & Zero-Bug Protocol
 
 ### Floating Left Sidebar Layout (Admin Pages)
 
-- Design the left sidebar (`AppSidebar.vue`) in a **floating style**: detached from the viewport edges with outer spacing (`top-3 bottom-3 left-3`), rounded corners (`rounded-2xl`), a subtle border, and a soft elevation shadow.
-- Support smooth collapsing into a compact floating icon rail on PC/tablet and an off-canvas floating drawer with a backdrop overlay on mobile and tablet portrait screens.
-- Keep an internal scrollable navigation list (`overflow-y-auto overscroll-contain`) inside the floating sidebar while pinning the brand header at the top and user/role summary or collapse toggle at the bottom.
-- Pair the floating sidebar with a responsive main content wrapper that adjusts its left offset according to the sidebar state on PC and uses full width on mobile.
+- Render `AppSidebar.vue` detached from viewport edges (`top-3 bottom-3 left-3`), with rounded corners (`rounded-2xl`), subtle border, and soft elevation shadow.
+- Support smooth collapsing into a compact floating icon rail on PC/tablet (`lg:w-20`) and an off-canvas floating drawer over `.sidebar-backdrop` on mobile/tablet portrait.
+- Keep an internal scrollable navigation list (`overflow-y-auto overscroll-contain`) while pinning the brand header at the top and the role switcher / user summary at the bottom.
 
 ### POS Screen Mode: No Sidebar & Gear Icon Dropdown with Exit to Admin
 
-When accessing the POS screen (`/pos` or `/pos/**`):
+When on `/pos` or `/pos/**`:
 
-1. **No Sidebar on POS Screen:**
-   - Do **not** render `AppSidebar.vue` or `.sidebar-backdrop` on the POS screen.
-   - Remove the desktop sidebar left padding offset (`lg:pl-72` / `lg:pl-28`) by applying `.main-viewport-pos` (`@apply lg:pl-6;`) so the POS terminal utilizes 100% of the viewport width across mobile, tablet, and PC.
-2. **Gear Icon Dropdown Menu with "Exit" Redirect to Admin:**
-   - Render a **Gear Icon button** (`.pos-gear-btn`) in the top-right corner of `AppTopbar.vue` when on the POS screen.
-   - Clicking the gear icon toggles a floating dropdown menu (`.pos-gear-dropdown`) with `aria-expanded` and `aria-haspopup="menu"`.
-   - Inside the dropdown menu, include an **"Exit"** item (`.pos-gear-dropdown-exit`).
-   - Clicking **"Exit"** closes the dropdown and redirects the user to the admin dashboard via `await navigateTo('/')` (or `/admin` if the project uses `/admin`).
-   - Automatically close the gear dropdown on outside click, `Escape` key press, or route change.
+1. **No Sidebar on POS Screen:** Do not render `AppSidebar.vue` or `.sidebar-backdrop`. Apply `.main-viewport-pos` (`@apply lg:pl-6;`) so the POS terminal uses 100% of the viewport width.
+2. **Gear Icon Dropdown Menu with "Exit" Redirect:** Render `.pos-gear-btn` in the top-right action bar of `AppTopbar.vue`. Clicking toggles `.pos-gear-dropdown` (`aria-expanded`, `aria-haspopup="menu"`) containing `.pos-gear-dropdown-exit`. Clicking **Exit** closes the menu and runs `await navigateTo('/')`. Close automatically on outside click, `Escape`, or route change.
 
-### Critical Layout Modification & Zero-Bug Safeguards
+### Critical Zero-Bug Geometry & Layering Rules
 
-1. **Exact Geometry & Offset Synchronization:**
-   - Admin Expanded floating sidebar: `left-3` (`0.75rem`) + `w-64` (`16rem`) = `16.75rem` occupied width. `.main-viewport` MUST use `lg:pl-72` (`18rem`) for a clean `1.25rem` gap and zero overlap.
-   - Admin Collapsed floating sidebar: `left-3` (`0.75rem`) + `lg:w-20` (`5rem`) = `5.75rem` occupied width. `.main-viewport-collapsed` MUST use `lg:pl-28` (`7rem`).
-   - Mobile Hidden State: Use `-translate-x-[calc(100%+1.5rem)]` so the `left-3` offset and shadow never bleed onto mobile screens when closed.
-   - POS Screen (No Sidebar): `.main-viewport-pos` MUST override the left offset with `lg:pl-6` (`1.5rem`) so there is zero empty gutter on the left side.
-2. **Prevent Flex & Table Horizontal Overflow (`min-w-0`):**
-   - Always apply `min-w-0 flex-1 overflow-x-hidden` on `.main-viewport` and `.page-content`.
-3. **Strict Z-Index Layering Scale:**
-   - Sticky Topbar: `z-20`
-   - Mobile Sidebar Backdrop Overlay: `z-30`
-   - Floating Left Sidebar (`AppSidebar.vue`): `z-40`
-   - POS Gear Dropdown Menu & Modals/Dialogs: `z-50`
-4. **SSR Hydration Safety:**
-   - Initialize layout state via `useState` with deterministic SSR defaults (`false`) instead of reading `window.innerWidth` during SSR setup.
+1. **Exact Offset Synchronization:**
+   - Expanded sidebar: `left-3` (`0.75rem`) + `w-64` (`16rem`) = `16.75rem` → `.main-viewport` uses `lg:pl-72` (`18rem`).
+   - Collapsed sidebar: `left-3` (`0.75rem`) + `lg:w-20` (`5rem`) = `5.75rem` → `.main-viewport-collapsed` uses `lg:pl-28` (`7rem`).
+   - Mobile hidden state: `-translate-x-[calc(100%+1.5rem)]` so the `left-3` offset and shadow never bleed onto mobile viewports.
+   - POS full-screen: `.main-viewport-pos` overrides left padding to `lg:pl-6` (`1.5rem`).
+2. **Horizontal Overflow Protection:** Always apply `min-w-0 flex-1 overflow-x-hidden` on `.main-viewport` and `.page-content`.
+3. **Z-Index Scale:** Sticky Topbar `z-20` → Mobile Backdrop `z-30` → Floating Sidebar `z-40` → POS Gear Dropdown & Modals `z-50`.
+4. **SSR Hydration Safety:** Initialize layout flags via `useState` with deterministic defaults (`false`), never reading `window.innerWidth` during SSR setup.
 
 ### Reference Layout Implementation (`app/layouts/default.vue` & `app/components/layout/AppTopbar.vue`)
 
@@ -389,6 +331,7 @@ const emit = defineEmits<{
   toggleSidebar: []
 }>()
 
+const { t } = useI18n()
 const route = useRoute()
 const isGearOpen = ref(false)
 const gearWrapperRef = ref<HTMLElement null |>(null)
@@ -447,7 +390,7 @@ onMounted(() => {
         v-if="!props.isPosScreen"
         type="button"
         class="btn-icon lg:hidden"
-        aria-label="Open navigation menu"
+        :aria-label="t('topbar.openMenu')"
         @click="emit('openMobileMenu')"
       >
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -455,17 +398,20 @@ onMounted(() => {
         </svg>
       </button>
 
-      <h1 class="text-base font-semibold text-slate-900">
-        {{ props.isPosScreen ? 'Point of Sale Terminal' : 'POS Admin' }}
+      <h1 class="topbar-title">
+        {{ props.isPosScreen ? t('topbar.posTitle') : t('topbar.adminTitle') }}
       </h1>
     </div>
 
     <div class="flex items-center gap-2">
+      <LayoutLangSwitcher/>
+      <LayoutThemeToggle/>
+
       <div v-if="props.isPosScreen" ref="gearWrapperRef" class="pos-gear-wrapper">
         <button
           type="button"
           class="pos-gear-btn"
-          aria-label="POS Settings Menu"
+          :aria-label="t('topbar.posSettings')"
           aria-haspopup="menu"
           :aria-expanded="isGearOpen"
           @click="toggleGearMenu"
@@ -496,7 +442,7 @@ onMounted(() => {
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
             </svg>
-            <span>Exit</span>
+            <span>{{ t('topbar.exit') }}</span>
           </button>
         </div>
       </div>
@@ -505,9 +451,11 @@ onMounted(() => {
 </template>
 ```
 
-## 7. JSONC Menu Configuration, Modules, and View Permissions
+---
 
-Define the sidebar navigation in `app/config/menu.jsonc` (JSON with Comments). Every menu entry must specify its `module` name and `permission.view` key.
+## 5. JSONC Menu Configuration, Modules, and Permissions
+
+Define the sidebar navigation in `app/config/menu.jsonc` (JSON with Comments). Every menu entry must specify its `module` name and `permission.view` key (plus optional `create`, `edit`, `delete` action keys).
 
 ### JSONC Menu Structure (`app/config/menu.jsonc`)
 
@@ -516,6 +464,7 @@ Define the sidebar navigation in `app/config/menu.jsonc` (JSON with Comments). E
   // POS Admin Dashboard Navigation Configuration
   "groups": [
     {
+      "groupKey": "coreOperations",
       "groupTitle": "Core Operations",
       "items": [
         {
@@ -553,6 +502,7 @@ Define the sidebar navigation in `app/config/menu.jsonc` (JSON with Comments). E
       ]
     },
     {
+      "groupKey": "catalogStock",
       "groupTitle": "Catalog & Stock",
       "items": [
         {
@@ -582,6 +532,7 @@ Define the sidebar navigation in `app/config/menu.jsonc` (JSON with Comments). E
       ]
     },
     {
+      "groupKey": "management",
       "groupTitle": "Management",
       "items": [
         {
@@ -652,27 +603,20 @@ export function parseJsonc<T>(rawJsonc: string): T {
 }
 ```
 
-### Menu and Permission Requirements
+### Menu & Permission Rules
 
-- Parse `menu.jsonc` safely in `app/utils/jsonc.ts` without corrupting strings or URLs.
 - Type every menu item in `app/types/menu.ts` with `id`, `label`, `icon`, `route`, `module`, and `permission: { view: string; create?: string; edit?: string; delete?: string }`.
-- Filter menu items and groups in `useMenu.ts` using `usePermissions.ts` so users only see modules where they hold `permission.view` (or `"*"` for super admin).
-- Only `permission.view` affects sidebar visibility and route access. The optional `create`, `edit`, and `delete` keys gate primary buttons, row actions, and form submission inside the module (see section 10).
-- Hide any group whose items are all filtered out.
+- Filter menu items and groups in `useMenu.ts` using `usePermissions.ts` so users only see modules where they hold `permission.view` (or `"*"` for super admin). Hide any group whose items are all filtered out.
+- Only `permission.view` affects sidebar visibility and route access. The optional `create`, `edit`, and `delete` keys gate primary buttons, row actions, and form submission inside the module.
+- Translate menu labels in `AppSidebar.vue` with `$t(\`nav.\${item.id}\`)` and group headers with `$t(\`group.\${group.groupKey}\`)`.
 
-## 8. Dashboard Overview
+---
 
-Include gross sales, net sales, transaction count, average order value, low-stock alerts, sales trend chart, recent transactions, best-selling products, and quick actions filtered by module view permissions. Support loading, empty, error, and retry states with clearly identified demo data when no API is configured.
+## 6. Users & Roles Module (CRUD with Role-Based Permissions)
 
-## 9. Tables and Management Pages
+The `users` and `roles` modules manage staff accounts and the roles that grant permission keys consumed by `menu.jsonc`, `usePermissions.ts`, route guards, and action buttons. Both modules must support full Create, Read, Update, and Delete workflows in demo mode first, using a service contract that can later be pointed at Laravel without touching pages or stores.
 
-Use a consistent pattern for products, sales, orders, inventory, customers, users, and roles: page heading, module badge, primary action, search/filters, readable columns, status badges, pagination, row actions, loading/empty/error states, and destructive action confirmation.
-
-## 10. Users & Roles Module (CRUD with Role-Based Permissions)
-
-The `users` and `roles` modules manage staff accounts and the roles that grant the permission keys consumed by `menu.jsonc`, `usePermissions.ts`, route guards, and action buttons. Both modules must support full Create, Read, Update, and Delete workflows in demo mode first, using a service contract that can later be pointed at Laravel without touching the pages.
-
-If an existing project already ships a `staff` module, evolve it in place (keep its route, add the roles page and the CRUD actions below). Do not create a duplicate module.
+If an existing project already ships a `staff` module, evolve it in place rather than creating a duplicate module.
 
 ### Permission Keys (`<module>.<action>`)
 
@@ -681,11 +625,12 @@ If an existing project already ships a `staff` module, evolve it in place (keep 
 | `users` | `users.view` | `users.create` | `users.edit` | `users.delete` |
 | `roles` | `roles.view` | `roles.create` | `roles.edit` | `roles.delete` |
 
-- `permission.view` controls sidebar visibility and route access. `create`, `edit`, and `delete` gate the primary button, row actions, and form submission.
-- Register all eight keys in `menu.jsonc` (see the `users` and `roles` entries in section 7) and in the demo role profiles of `auth.ts`.
-- Support a `"*"` wildcard for super administrators inside `hasPermission`.
-- Expose `can(action, module)` from `usePermissions.ts` as a thin wrapper around ``hasPermission(`${module}.${action}`)``.
-- Frontend checks are presentation only. Laravel must enforce the same keys on every endpoint.
+- Support `"*"` wildcard for super administrators inside `hasPermission`.
+- Expose `can(action, module)` from `usePermissions.ts` as a wrapper around ``hasPermission(`${module}.${action}`)``.
+- Demo role profiles in `app/stores/auth.ts` (switchable from the sidebar footer for testing):
+  - `admin`: `"*"` (all permissions)
+  - `manager`: `users.view`, `users.create`, `users.edit`, `roles.view` (plus core operational modules)
+  - `cashier` and `inventory_clerk`: no `users.*` or `roles.*` permissions.
 
 ### Domain Types (`app/types/user.ts`, `app/types/role.ts`)
 
@@ -739,8 +684,6 @@ export interface RoleFormInput {
 
 ### Service Contract (`app/services/users.ts`, `app/services/roles.ts`)
 
-Both services expose the same shape so the demo implementation can be swapped for Laravel without changing pages or stores:
-
 ```ts
 export interface ListParams {
   search?: string
@@ -767,156 +710,474 @@ export interface UserService {
 // RoleService mirrors UserService with Role / RoleFormInput.
 ```
 
-- Demo mode: `app/services/demo/users.ts` and `app/services/demo/roles.ts` keep an in-memory fixture list, simulate short latency, enforce unique emails and role names, and reject invalid input with the same shape Laravel returns (`{ message, errors: { field: ['...'] } }`, status `422`).
-- Laravel mode (later): `GET/POST /users`, `GET/PUT/DELETE /users/{id}`, `GET/POST /roles`, `GET/PUT/DELETE /roles/{id}`, and `GET /permissions` for the permission catalog. Verify the real routes and response envelopes first; never invent endpoints.
+- **Demo mode (`app/services/demo/users.ts`, `app/services/demo/roles.ts`):** Keep an in-memory fixture list, simulate short latency, enforce unique emails and role names, and reject invalid input with Laravel-compatible validation errors (`{ message, errors: { field: ['...'] } }`, status `422`).
+- **Stores (`app/stores/users.ts`, `app/stores/roles.ts`):** Track `items`, `total`, `page`, `perPage`, `filters`, `isLoading`, `isSaving`, `error` with actions `fetch`, `create`, `update`, `remove`. Never store passwords in state. When the signed-in user's record or role is updated, refresh `auth.ts` permissions from the confirmed result so the sidebar re-filters immediately.
 
-### Stores (`app/stores/users.ts`, `app/stores/roles.ts`)
+### Pages, Permission Matrix & Safety Rules
 
-- State: `items`, `total`, `page`, `perPage`, `filters`, `isLoading`, `isSaving`, `error`.
-- Actions: `fetch(params)`, `create(input)`, `update(id, input)`, `remove(id)`.
-- Update `items` only from the confirmed service result, never optimistically on click.
-- Never keep passwords in state. Clear password fields in the form after submit.
-- When the edited user is the signed-in user, refresh the permissions in `auth.ts` from the confirmed response so the sidebar re-filters immediately.
+- **Routes:** `pages/users/index.vue`, `pages/users/new.vue`, `pages/users/[id].vue`, `pages/roles/index.vue`, `pages/roles/new.vue`, `pages/roles/[id].vue`.
+- **Users List & Form:** Filter via `.apple-search-input` and `.apple-select` synced with URL query params. Gate "New User" on `users.create` and row actions on `users.edit` / `users.delete`. Render password fields only on create or explicit "Reset password" toggle (`autocomplete="new-password"`).
+- **Permission Matrix (`app/components/roles/PermissionMatrix.vue`):** Build rows dynamically from `menu.jsonc` (`const ACTIONS = ['view', 'create', 'edit', 'delete'] as const`) so the matrix never drifts from sidebar modules. Include per-row and per-column "Select all" toggles and a live granted-permissions count using `.permission-matrix` and `.apple-checkbox`.
+- **Delete & Safety Guards:** Require confirmation modal (`.modal-backdrop` / `.modal-card`) naming the target record. Block and explain in the UI when attempting to:
+  1. Delete the currently signed-in user's own account.
+  2. Delete or deactivate the last active user holding `users.edit`.
+  3. Rename or delete a system role (`isSystem: true`).
+  4. Delete a role that still has assigned users (`usersCount > 0`).
 
-### Pages and Routes
+---
 
-```text
-pages/users/index.vue   # list + search / filters + pagination + row actions
-pages/users/new.vue     # create form
-pages/users/[id].vue    # edit form (+ Delete through a confirmation dialog)
-pages/roles/index.vue   # list with users count + permissions count
-pages/roles/new.vue     # create form + permission matrix
-pages/roles/[id].vue    # edit form + permission matrix (+ Delete)
-```
+## 7. Dashboard Overview, Tables, Forms & Safari Focus No-Zoom
 
-Guard every route with the module's `permission.view` using the same gate as the other modules.
+### Dashboard Overview & Management Pages
 
-**Users list (`/users`)**
+- **Overview (`/`):** Gross sales, net sales, transaction count, average order value, low-stock alerts, sales trend chart, recent transactions, best-selling products, and quick actions filtered by module `permission.view`.
+- **Tables:** Consistent page heading, module badge, gated primary action button, search/filter bar, `.table-container` horizontal scroll wrapper, status badges (always with text label, never color-only), pagination, loading/empty/error states with retry, and destructive confirmation dialogs.
+- **POS Correctness:** Keep order, payment, and fulfillment statuses distinct. Distinguish stock on hand, reserved stock, and available stock.
 
-- Columns: avatar + name + email, role badge, status badge (text label, never color only), last login, actions.
-- Filters: `.apple-search-input` (name / email / phone), role `.apple-select`, status `.apple-select`. Keep them synchronized with URL query parameters.
-- "New User" is shown only with `users.create`; Edit / Delete row actions only with `users.edit` / `users.delete`.
-- Loading, empty, no-results, and error states with retry. Pagination with result counts.
+### Apple-Style Input Design & Safari Auto-Zoom Prevention
 
-**User form (`/users/new`, `/users/[id]`)**
+- **Prevent iOS / iPadOS Safari Auto-Zoom on Focus:** Safari on iPhone and iPad automatically zooms the viewport whenever a user focuses an `<input>`, `<select>`, or `<textarea>` with a computed `font-size` below `16px`. Always enforce `text-base lg:text-sm` (`16px` below `1024px`, `14px` on desktop) on all text/search/select/quantity controls.
+- **Native Checkboxes & Radios:** Scope `appearance-none` to text-like inputs (`input:not([type="checkbox"]):not([type="radio"]), select, textarea`) so `.apple-checkbox` keeps native accessible rendering.
 
-- `.form-label` + `.apple-input` for name, email (`type="email"`), phone (`type="tel"`, `inputmode="tel"`); role and status use `.apple-select`.
-- Password and confirmation appear only on create or after an explicit "Reset password" toggle, with `autocomplete="new-password"`.
-- Validate on submit, show `.form-error` beside the field, preserve entered values, disable the submit button while `isSaving`, and prevent duplicate requests.
-- Success and failure feedback through the toast store; redirect to `/users` only after a confirmed save.
+---
 
-**Roles list and form (`/roles`, `/roles/new`, `/roles/[id]`)**
+## 8. Internationalization (`@nuxtjs/i18n`) — English (`en`) & Khmer (`km`)
 
-- Columns: role name, description, permissions count, users count, system badge, actions.
-- The permission matrix is generated from `menu.jsonc` (one row per module, one checkbox per action) so new modules appear automatically. Render it as `components/roles/PermissionMatrix.vue` with the `.permission-matrix` and `.apple-checkbox` classes from `main.css`.
-- Provide "select all" per row and per column and a live count of granted permissions.
-- System roles (`isSystem: true`) can have their permissions reviewed but not be renamed or deleted.
+Support **English (`en`)** and **Khmer (`km`, ខ្មែរ)** across all navigation items, topbar titles, buttons, table headers, statuses, and messages. Never hard-code visible English or Khmer strings in Vue templates—always use `$t()` or `t()`.
 
-### Permission Matrix Component (`app/components/roles/PermissionMatrix.vue`)
+### `nuxt.config.ts` Registration
 
 ```ts
-// Rows come from menu.jsonc so the matrix never drifts from the sidebar modules.
-const ACTIONS = ['view', 'create', 'edit', 'delete'] as const
-const { rawMenu } = useMenu()
-
-const rows = computed(() =>
-  rawMenu.groups.flatMap(group =>
-    group.items.map(item => ({
-      module: item.module,
-      label: item.label,
-      keys: ACTIONS.map(action => item.permission[action] ?? `${item.module}.${action}`)
-    }))
-  )
-)
-// v-model is the role's `permissions: string[]`; toggling a checkbox adds/removes its key.
+export default defineNuxtConfig({
+  modules: ['@pinia/nuxt', '@nuxtjs/i18n'],
+  i18n: {
+    locales: [
+      { code: 'en', name: 'English', file: 'en.json' },
+      { code: 'km', name: 'ខ្មែរ',   file: 'km.json' }
+    ],
+    defaultLocale: 'en',
+    lazy: true,
+    langDir: 'locales/',
+    strategy: 'no_prefix',
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: 'pos-locale',
+      redirectOn: 'root'
+    }
+  }
+})
 ```
 
-### Delete and Safety Rules
+### Translation Files (`app/locales/en.json` & `app/locales/km.json`)
 
-- Every delete goes through a confirmation dialog (`.modal-backdrop` / `.modal-card`) that names the record being removed.
-- Block in the UI, and explain why, when the user tries to: delete their own account, delete or deactivate the last active user who holds `users.edit`, delete a system role, or delete a role that still has assigned users (show the count and link to the filtered users list).
-- Prefer deactivation (`status: 'inactive'`) as the day-to-day action; hard delete stays gated by `users.delete`.
-- Role and permission changes take effect in the UI only after the server (or demo service) confirms them.
+`app/locales/en.json`:
 
-### Reference `main.css` Additions
-
-```css
-@layer components {
-  .permission-matrix {
-    @apply w-full text-left border-collapse min-w-[560px];
-  }
-
-  .permission-matrix th {
-    @apply px-3 py-2.5 text-xs font-semibold uppercase tracking-wider text-slate-500
-           bg-slate-50/90 border-b border-slate-200/80 text-center first:text-left;
-  }
-
-  .permission-matrix td {
-    @apply px-3 py-2.5 text-sm text-slate-700 border-b border-slate-100 text-center
-           first:text-left first:font-semibold;
-  }
-
-  .apple-checkbox {
-    @apply h-5 w-5 rounded-md accent-blue-600 cursor-pointer
-           focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/15;
+```json
+{
+  "nav": {
+    "overview": "Overview",
+    "pos": "Point of Sale",
+    "sales": "Sales",
+    "orders": "Orders & Returns",
+    "products": "Products",
+    "categories": "Categories",
+    "inventory": "Inventory",
+    "customers": "Customers",
+    "users": "Users",
+    "roles": "Roles & Permissions",
+    "reports": "Reports",
+    "settings": "Settings"
+  },
+  "group": {
+    "coreOperations": "Core Operations",
+    "catalogStock": "Catalog & Stock",
+    "management": "Management"
+  },
+  "topbar": {
+    "posTitle": "Point of Sale Terminal",
+    "adminTitle": "POS Admin",
+    "openMenu": "Open navigation menu",
+    "posSettings": "POS Settings Menu",
+    "exit": "Exit"
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "toggle": "Toggle theme"
+  },
+  "lang": {
+    "en": "English",
+    "km": "ខ្មែរ",
+    "switch": "Switch language"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "loading": "Loading…",
+    "noResults": "No results found",
+    "confirmDelete": "Are you sure you want to delete \"{name}\"?",
+    "permissionDenied": "You do not have permission to view this page."
+  },
+  "dashboard": {
+    "grossSales": "Gross Sales",
+    "netSales": "Net Sales",
+    "transactions": "Transactions",
+    "avgOrder": "Avg. Order Value",
+    "lowStock": "Low Stock Alerts",
+    "recentTransactions": "Recent Transactions",
+    "bestSelling": "Best-Selling Products"
+  },
+  "users": {
+    "title": "Users",
+    "newUser": "New User",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "role": "Role",
+    "status": "Status",
+    "lastLogin": "Last Login",
+    "active": "Active",
+    "inactive": "Inactive",
+    "suspended": "Suspended"
+  },
+  "roles": {
+    "title": "Roles & Permissions",
+    "newRole": "New Role",
+    "roleName": "Role Name",
+    "description": "Description",
+    "permissions": "Permissions",
+    "usersCount": "Users",
+    "system": "System"
   }
 }
 ```
 
-Keep native rendering for checkboxes and radios: scope the global `appearance-none` base rule to text-like controls (`input:not([type="checkbox"]):not([type="radio"])`) so the matrix stays usable and accessible.
+`app/locales/km.json`:
 
-### Demo Role Profiles (`auth.ts`)
+```json
+{
+  "nav": {
+    "overview": "ទិដ្ឋភាពទូទៅ",
+    "pos": "ការលក់ (POS)",
+    "sales": "ការលក់",
+    "orders": "ការបញ្ជាទិញ & ការត្រឡប់",
+    "products": "ផលិតផល",
+    "categories": "ប្រភេទ",
+    "inventory": "ស្តុក",
+    "customers": "អតិថិជន",
+    "users": "អ្នកប្រើ",
+    "roles": "តួនាទី & សិទ្ធិ",
+    "reports": "របាយការណ៍",
+    "settings": "ការកំណត់"
+  },
+  "group": {
+    "coreOperations": "ប្រតិបត្តិការចម្បង",
+    "catalogStock": "កាតាឡុក & ស្តុក",
+    "management": "ការគ្រប់គ្រង"
+  },
+  "topbar": {
+    "posTitle": "ស្ថានីយលក់ (POS)",
+    "adminTitle": "ផ្ទាំងគ្រប់គ្រង POS",
+    "openMenu": "បើកម៉ឺនុយ",
+    "posSettings": "ម៉ឺនុយការកំណត់ POS",
+    "exit": "ចាកចេញ"
+  },
+  "theme": {
+    "light": "ភ្លឺ",
+    "dark": "ងងឹត",
+    "toggle": "ប្តូរស្បែក"
+  },
+  "lang": {
+    "en": "English",
+    "km": "ខ្មែរ",
+    "switch": "ប្តូរភាសា"
+  },
+  "common": {
+    "save": "រក្សាទុក",
+    "cancel": "បោះបង់",
+    "delete": "លុប",
+    "edit": "កែប្រែ",
+    "create": "បង្កើត",
+    "search": "ស្វែងរក",
+    "loading": "កំពុងផ្ទុក…",
+    "noResults": "រកមិនឃើញ",
+    "confirmDelete": "តើអ្នកចង់លុប \"{name}\" ពិតមែនទេ?",
+    "permissionDenied": "អ្នកមិនមានសិទ្ធិចូលមើលទំព័រនេះ។"
+  },
+  "dashboard": {
+    "grossSales": "ការលក់សរុប",
+    "netSales": "ការលក់សុទ្ធ",
+    "transactions": "ប្រតិបត្តិការ",
+    "avgOrder": "តម្លៃបញ្ជាទិញជាមធ្យម",
+    "lowStock": "ការជូនដំណឹងស្តុកទាប",
+    "recentTransactions": "ប្រតិបត្តិការថ្មីៗ",
+    "bestSelling": "ផលិតផលលក់ដាច់បំផុត"
+  },
+  "users": {
+    "title": "អ្នកប្រើ",
+    "newUser": "អ្នកប្រើថ្មី",
+    "name": "ឈ្មោះ",
+    "email": "អ៊ីម៉ែល",
+    "phone": "ទូរស័ព្ទ",
+    "role": "តួនាទី",
+    "status": "ស្ថានភាព",
+    "lastLogin": "ចូលចុងក្រោយ",
+    "active": "សកម្ម",
+    "inactive": "អសកម្ម",
+    "suspended": "ព្យួរ"
+  },
+  "roles": {
+    "title": "តួនាទី & សិទ្ធិ",
+    "newRole": "តួនាទីថ្មី",
+    "roleName": "ឈ្មោះតួនាទី",
+    "description": "ការពិពណ៌នា",
+    "permissions": "សិទ្ធិ",
+    "usersCount": "អ្នកប្រើ",
+    "system": "ប្រព័ន្ធ"
+  }
+}
+```
 
-- `admin`: every `users.*` and `roles.*` key (or `"*"`).
-- `manager`: `users.view`, `users.create`, `users.edit`, `roles.view`.
-- `cashier` and `inventory_clerk`: none of the users / roles keys.
-- Add the `manager` profile to the sidebar role switcher so partial CRUD gating can be tested without a backend.
+---
 
-### Acceptance Checklist
+## 9. Preferences Store, i18n Composable & Light / Dark Theme System
 
-- `/users` and `/roles` appear in the sidebar only with `users.view` / `roles.view`; direct navigation without the key shows the Permission Denied state.
-- Create, edit, and delete work end to end in demo mode with validation messages, confirmation dialogs, and toast feedback.
-- Buttons and row actions honor `create` / `edit` / `delete` keys for the active simulated role.
-- Permission matrix rows match the modules in `menu.jsonc` exactly.
-- Deleting self, the last `users.edit` holder, a system role, or an in-use role is blocked with an explanation.
-- All form controls compute to `16px` below `1024px` (Safari no-zoom) and use `.apple-*` classes; tables scroll inside `.data-table-wrapper` on mobile.
+Use SSR-safe cookie + `localStorage` persistence in `app/stores/preferences.ts` so both SSR hydration and client transitions stay synchronized without hydration mismatches or theme flashes.
 
-## 11. Forms, Apple-Style Input Boxes, and Safari Focus No-Zoom Behavior
+### Preferences Store (`app/stores/preferences.ts`)
 
-### Apple-Style Input Design & Safari Auto-Zoom Prevention
+```ts
+import { defineStore } from 'pinia'
 
-- **Prevent iOS / iPadOS Safari Auto-Zoom on Focus:** Safari on iPhone and iPad automatically zooms the viewport whenever a user focuses an `<input>`, `<select>`, or `<textarea>` with a computed `font-size` below `16px`. Always enforce `text-base` (`16px` / `1rem`) on all form controls across mobile and tablet viewports (`@apply text-base lg:text-sm`). Never use `text-xs` or unprefixed `text-sm` on any input, search box, POS quantity input, or select element.
-- **Apple-Inspired Input Aesthetics (`.apple-input` / `.form-input`):**
-  - Strip native WebKit inner shadows using `appearance-none` (`-webkit-appearance: none`).
-  - Use smooth Apple-like geometry: `rounded-xl`, `min-h-[44px]`, `bg-slate-100/80`, `border border-slate-200/90`, and `focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15 focus:outline-none`.
-  - Apply `touch-action: manipulation` to prevent accidental double-tap zoom while preserving pinch-to-zoom accessibility.
+export type Locale = 'en' | 'km'
+export type Theme = 'light' | 'dark'
 
-## 12. Nuxt 4 Conventions
+export const usePreferencesStore = defineStore('preferences', () => {
+  const localeCookie = useCookie<Locale>('pos-locale', { default: () => 'en' })
+  const themeCookie = useCookie<Theme>('pos-theme', { default: () => 'light' })
 
-Use `<script setup lang="ts">`, file-based routing, reusable components, typed contracts, `useFetch`/`useAsyncData`, SSR-safe patterns, `runtimeConfig.public.apiBase`, and semantic HTML with accessible labels.
+  const locale = ref<Locale>(localeCookie.value || 'en')
+  const theme = ref<Theme>(themeCookie.value || 'light')
 
-## 13. Tailwind CSS Conventions (`main.css` with `@apply`)
+  function setLocale(next: Locale) {
+    locale.value = next
+    localeCookie.value = next
+    if (import.meta.client) {
+      localStorage.setItem('pos-locale', next)
+    }
+  }
 
-**Mandatory Rule: Centralize all Tailwind CSS classes in `app/assets/css/main.css` using `@apply`.**
+  function setTheme(next: Theme) {
+    theme.value = next
+    themeCookie.value = next
+    if (import.meta.client) {
+      localStorage.setItem('pos-theme', next)
+    }
+  }
 
-- Do not clutter Vue `<template>` blocks with long utility class chains; use semantic class names defined in `app/assets/css/main.css`.
-- Never `@apply` one custom component class inside another custom class in Tailwind v4.
+  function initFromStorage() {
+    if (!import.meta.client) return
+    const savedLocale = localStorage.getItem('pos-locale') as Locale | null
+    if (savedLocale === 'en' || savedLocale === 'km') {
+      setLocale(savedLocale)
+    }
+    const savedTheme = localStorage.getItem('pos-theme') as Theme | null
+    if (savedTheme === 'light' || savedTheme === 'dark') {
+      setTheme(savedTheme)
+    }
+  }
 
-Reference pattern in `app/assets/css/main.css`:
+  return { locale, theme, setLocale, setTheme, initFromStorage }
+})
+```
+
+### `useLocale` Composable (`app/composables/useLocale.ts`) & `LangSwitcher.vue`
+
+```ts
+// app/composables/useLocale.ts
+import { usePreferencesStore, type Locale } from '~/stores/preferences'
+
+export function useLocale() {
+  const { setLocale } = useI18n()
+  const store = usePreferencesStore()
+
+  async function switchLocale(code: Locale) {
+    store.setLocale(code)
+    await setLocale(code)
+  }
+
+  onMounted(async () => {
+    store.initFromStorage()
+    await setLocale(store.locale)
+  })
+
+  return {
+    currentLocale: computed(() => store.locale),
+    switchLocale
+  }
+}
+```
+
+```vue
+<!-- app/components/layout/LangSwitcher.vue -->
+<script setup lang="ts">
+const { currentLocale, switchLocale } = useLocale()
+const { t } = useI18n()
+</script>
+
+<template>
+  <div class="lang-switcher" :aria-label="t('lang.switch')">
+    <button
+      type="button"
+      class="lang-btn"
+      :class="{ 'lang-btn-active': currentLocale === 'en' }"
+      @click="switchLocale('en')"
+    >
+      EN
+    </button>
+    <button
+      type="button"
+      class="lang-btn"
+      :class="{ 'lang-btn-active': currentLocale === 'km' }"
+      @click="switchLocale('km')"
+    >
+      ខ្មែរ
+    </button>
+  </div>
+</template>
+```
+
+### `useTheme` Composable (`app/composables/useTheme.ts`), `ThemeToggle.vue` & `app.vue`
+
+```ts
+// app/composables/useTheme.ts
+import { usePreferencesStore, type Theme } from '~/stores/preferences'
+
+export function useTheme() {
+  const store = usePreferencesStore()
+
+  function applyTheme(theme: Theme) {
+    if (import.meta.client) {
+      document.documentElement.classList.toggle('dark', theme === 'dark')
+    }
+  }
+
+  function toggleTheme() {
+    const next: Theme = store.theme === 'light' ? 'dark' : 'light'
+    store.setTheme(next)
+    applyTheme(next)
+  }
+
+  useHead({
+    htmlAttrs: {
+      class: computed(() => (store.theme === 'dark' ? 'dark' : ''))
+    }
+  })
+
+  onMounted(() => {
+    store.initFromStorage()
+    applyTheme(store.theme)
+  })
+
+  return {
+    theme: computed(() => store.theme),
+    isDark: computed(() => store.theme === 'dark'),
+    toggleTheme
+  }
+}
+```
+
+```vue
+<!-- app/components/layout/ThemeToggle.vue -->
+<script setup lang="ts">
+const { isDark, toggleTheme } = useTheme()
+const { t } = useI18n()
+</script>
+
+<template>
+  <button
+    type="button"
+    class="theme-toggle-btn"
+    :aria-label="t('theme.toggle')"
+    :title="isDark ? t('theme.light') : t('theme.dark')"
+    @click="toggleTheme"
+  >
+    <svg v-if="isDark" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M12 3v1m0 16v1m8.66-9h-1M4.34 12h-1m15.07-6.07-.71.71M6.34 17.66l-.71.71M17.66 17.66l.71.71M6.34 6.34l-.71-.71M12 5a7 7 0 100 14A7 7 0 0012 5z" />
+    </svg>
+    <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+    </svg>
+  </button>
+</template>
+```
+
+Call `useTheme()` and `useLocale()` in `app/app.vue` so the active theme class and locale initialize on first render.
+
+---
+
+## 10. Centralized Tailwind CSS (`app/assets/css/main.css` with `@apply` & Dark Mode)
+
+**Mandatory Rule:** Centralize all Tailwind CSS classes in `app/assets/css/main.css` using `@apply`. Every component class must include `dark:` companions. Never `@apply` one custom class inside another custom class in Tailwind v4.
+
+### `tailwind.config.ts`
+
+```ts
+export default {
+  darkMode: 'class',
+  content: ['./app/**/*.{vue,ts,js}'],
+  theme: { extend: {} },
+  plugins: []
+}
+```
+
+### Reference `app/assets/css/main.css`
 
 ```css
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --color-bg-app:       theme('colors.slate.100');
+  --color-bg-surface:   theme('colors.white');
+  --color-bg-surface2:  theme('colors.slate.50');
+  --color-border:       theme('colors.slate.200 / 80%');
+  --color-text-primary: theme('colors.slate.900');
+  --color-text-muted:   theme('colors.slate.500');
+  --color-accent:       theme('colors.blue.600');
+  --color-accent-ring:  theme('colors.blue.500 / 15%');
+  --color-danger:       theme('colors.rose.600');
+  --color-danger-bg:    theme('colors.rose.50');
+}
+
+.dark {
+  --color-bg-app:       theme('colors.slate.950');
+  --color-bg-surface:   theme('colors.slate.900');
+  --color-bg-surface2:  theme('colors.slate.800');
+  --color-border:       theme('colors.slate.700 / 80%');
+  --color-text-primary: theme('colors.slate.100');
+  --color-text-muted:   theme('colors.slate.400');
+  --color-accent:       theme('colors.blue.400');
+  --color-accent-ring:  theme('colors.blue.400 / 15%');
+  --color-danger:       theme('colors.rose.400');
+  --color-danger-bg:    theme('colors.rose.950');
+}
+
 @layer base {
   html,
   body {
-    @apply bg-slate-100 text-slate-900 antialiased overflow-x-hidden;
+    @apply bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 antialiased overflow-x-hidden;
   }
 
-  /* Prevent iOS & iPadOS Safari from auto-zooming on input focus (must be >= 16px on mobile/tablet) */
-  input,
+  /* Prevent iOS & iPadOS Safari from auto-zooming on focus (>= 16px below lg); preserve native checkboxes/radios */
+  input:not([type="checkbox"]):not([type="radio"]),
   select,
   textarea {
     @apply text-base lg:text-sm appearance-none;
@@ -927,15 +1188,15 @@ Reference pattern in `app/assets/css/main.css`:
 
 @layer components {
   .app-shell {
-    @apply relative min-h-dvh w-full bg-slate-100 text-slate-900 flex flex-col overflow-x-hidden;
+    @apply relative min-h-dvh w-full bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col overflow-x-hidden;
   }
 
   .sidebar-backdrop {
-    @apply fixed inset-0 z-30 bg-slate-900/40 backdrop-blur-sm transition-opacity duration-300 lg:hidden;
+    @apply fixed inset-0 z-30 bg-slate-900/40 dark:bg-slate-950/60 backdrop-blur-sm transition-opacity duration-300 lg:hidden;
   }
 
   .sidebar-float {
-    @apply fixed top-3 bottom-3 left-3 z-40 w-64 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-200/80 shadow-xl flex flex-col overflow-hidden transition-all duration-300 ease-in-out -translate-x-[calc(100%+1.5rem)] lg:translate-x-0;
+    @apply fixed top-3 bottom-3 left-3 z-40 w-64 rounded-2xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200/80 dark:border-slate-700/80 shadow-xl flex flex-col overflow-hidden transition-all duration-300 ease-in-out -translate-x-[calc(100%+1.5rem)] lg:translate-x-0;
   }
 
   .sidebar-float-open {
@@ -947,7 +1208,7 @@ Reference pattern in `app/assets/css/main.css`:
   }
 
   .sidebar-header {
-    @apply flex items-center justify-between gap-3 px-4 h-16 border-b border-slate-100 shrink-0;
+    @apply flex items-center justify-between gap-3 px-4 h-16 border-b border-slate-100 dark:border-slate-800 shrink-0;
   }
 
   .sidebar-scroll-area {
@@ -955,23 +1216,23 @@ Reference pattern in `app/assets/css/main.css`:
   }
 
   .sidebar-footer {
-    @apply p-3 border-t border-slate-100 shrink-0 bg-slate-50/60;
+    @apply p-3 border-t border-slate-100 dark:border-slate-800 shrink-0 bg-slate-50/60 dark:bg-slate-800/50;
   }
 
   .sidebar-group-title {
-    @apply px-3 mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400 truncate;
+    @apply px-3 mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 truncate;
   }
 
   .sidebar-link {
-    @apply flex items-center gap-3 px-3 py-2.5 min-h-[44px] rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100/90 hover:text-slate-900 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500;
+    @apply flex items-center gap-3 px-3 py-2.5 min-h-[44px] rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100/90 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500;
   }
 
   .sidebar-link-active {
-    @apply bg-blue-600 text-white shadow-sm hover:bg-blue-600 hover:text-white;
+    @apply bg-blue-600 dark:bg-blue-500 text-white shadow-sm hover:bg-blue-600 dark:hover:bg-blue-500 hover:text-white;
   }
 
   .main-viewport {
-    @apply flex-1 flex flex-col min-w-0 w-full px-3 py-3 sm:px-5 md:px-6 md:py-4 lg:pl-72 transition-all duration-300 ease-in-out;
+    @apply flex-1 flex flex-col min-w-0 w-full px-3 py-3 sm:px-5 md:px-6 md:py-4 lg:pl-72 transition-all duration-300 ease-in-out overflow-x-hidden;
   }
 
   .main-viewport-collapsed {
@@ -983,7 +1244,31 @@ Reference pattern in `app/assets/css/main.css`:
   }
 
   .topbar {
-    @apply sticky top-3 z-20 flex items-center justify-between gap-3 px-4 h-16 rounded-2xl bg-white/90 backdrop-blur-md border border-slate-200/80 shadow-sm mb-4 shrink-0;
+    @apply sticky top-3 z-20 flex items-center justify-between gap-3 px-4 h-16 rounded-2xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200/80 dark:border-slate-700/80 shadow-sm mb-4 shrink-0;
+  }
+
+  .topbar-title {
+    @apply text-base font-semibold text-slate-900 dark:text-slate-100;
+  }
+
+  .btn-icon {
+    @apply inline-flex items-center justify-center min-w-[44px] min-h-[44px] rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200/80 dark:hover:bg-slate-700 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500;
+  }
+
+  .lang-switcher {
+    @apply inline-flex items-center gap-1 rounded-xl bg-slate-100 dark:bg-slate-800 p-1;
+  }
+
+  .lang-btn {
+    @apply px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 transition-colors duration-150 hover:bg-white dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white;
+  }
+
+  .lang-btn-active {
+    @apply bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm;
+  }
+
+  .theme-toggle-btn {
+    @apply inline-flex items-center justify-center min-w-[44px] min-h-[44px] rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500;
   }
 
   .pos-gear-wrapper {
@@ -991,97 +1276,405 @@ Reference pattern in `app/assets/css/main.css`:
   }
 
   .pos-gear-btn {
-    @apply inline-flex items-center justify-center min-w-[44px] min-h-[44px] rounded-xl bg-slate-100/90 text-slate-700 hover:bg-slate-200/80 hover:text-slate-900 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500;
+    @apply inline-flex items-center justify-center min-w-[44px] min-h-[44px] rounded-xl bg-slate-100/90 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200/80 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500;
   }
 
   .pos-gear-dropdown {
-    @apply absolute right-0 mt-2 w-48 origin-top-right rounded-2xl bg-white p-1.5 shadow-xl border border-slate-200/90 z-50 focus:outline-none;
+    @apply absolute right-0 mt-2 w-48 origin-top-right rounded-2xl bg-white dark:bg-slate-900 p-1.5 shadow-xl border border-slate-200/90 dark:border-slate-700/90 z-50 focus:outline-none;
   }
 
   .pos-gear-dropdown-item {
-    @apply flex w-full items-center gap-2.5 px-3 py-2.5 min-h-[44px] rounded-xl text-sm font-medium text-slate-700 hover:bg-slate-100 transition-colors duration-150;
+    @apply flex w-full items-center gap-2.5 px-3 py-2.5 min-h-[44px] rounded-xl text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors duration-150;
   }
 
   .pos-gear-dropdown-exit {
-    @apply flex w-full items-center gap-2.5 px-3 py-2.5 min-h-[44px] rounded-xl text-sm font-medium text-rose-600 hover:bg-rose-50 transition-colors duration-150;
+    @apply flex w-full items-center gap-2.5 px-3 py-2.5 min-h-[44px] rounded-xl text-sm font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/60 transition-colors duration-150;
   }
 
   .page-content {
-    @apply flex-1 min-w-0 space-y-6 pb-8;
+    @apply flex-1 min-w-0 space-y-6 pb-8 overflow-x-hidden;
+  }
+
+  .form-label {
+    @apply block mb-1.5 text-sm font-medium text-slate-700 dark:text-slate-300;
+  }
+
+  .form-error {
+    @apply mt-1 text-xs font-medium text-rose-600 dark:text-rose-400;
   }
 
   .apple-input,
-  .form-input {
-    @apply w-full min-h-[44px] px-3.5 py-2.5 rounded-xl bg-slate-100/80 border border-slate-200/90 text-base lg:text-sm text-slate-900 placeholder:text-slate-400 appearance-none shadow-sm transition-all duration-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed;
+  .form-input,
+  .apple-select {
+    @apply w-full min-h-[44px] px-3.5 py-2.5 rounded-xl bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200/90 dark:border-slate-700/90 text-base lg:text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 appearance-none shadow-sm transition-all duration-200 focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/15 dark:focus:ring-blue-400/15 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed;
     touch-action: manipulation;
     -webkit-appearance: none;
   }
 
   .apple-search-input {
-    @apply w-full min-h-[44px] pl-10 pr-4 py-2 rounded-xl bg-slate-100/90 border border-transparent text-base lg:text-sm text-slate-900 placeholder:text-slate-400 appearance-none transition-all duration-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15 focus:outline-none;
+    @apply w-full min-h-[44px] pl-10 pr-4 py-2 rounded-xl bg-slate-100/90 dark:bg-slate-800/90 border border-transparent text-base lg:text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 appearance-none transition-all duration-200 focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/15 dark:focus:ring-blue-400/15 focus:outline-none;
     touch-action: manipulation;
     -webkit-appearance: none;
+  }
+
+  .apple-checkbox {
+    @apply h-5 w-5 rounded-md accent-blue-600 dark:accent-blue-400 cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/15;
   }
 
   .stats-grid {
     @apply grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4;
   }
 
-  .table-container {
-    @apply w-full overflow-x-auto rounded-2xl bg-white border border-slate-200/80 shadow-sm;
+  .stat-card {
+    @apply rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-5 shadow-sm;
+  }
+
+  .table-container,
+  .data-table-wrapper {
+    @apply w-full overflow-x-auto rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm;
+  }
+
+  .permission-matrix {
+    @apply w-full text-left border-collapse min-w-[560px];
+  }
+
+  .permission-matrix th {
+    @apply px-3 py-2.5 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 bg-slate-50/90 dark:bg-slate-800/80 border-b border-slate-200/80 dark:border-slate-700/80 text-center first:text-left;
+  }
+
+  .permission-matrix td {
+    @apply px-3 py-2.5 text-sm text-slate-700 dark:text-slate-200 border-b border-slate-100 dark:border-slate-800 text-center first:text-left first:font-semibold;
+  }
+
+  .modal-backdrop {
+    @apply fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 dark:bg-slate-950/70 backdrop-blur-sm;
+  }
+
+  .modal-card {
+    @apply w-full max-w-md rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-700/90 p-6 shadow-2xl;
   }
 }
 ```
 
-## 14. Laravel API Integration — Optional
+---
 
-Verify that a Laravel API exists or is requested before integrating. Map backend user permissions to the `permission.view` keys (and the `create` / `edit` / `delete` action keys) in `app/config/menu.jsonc`, replace the demo users / roles services with API-backed ones that keep the same contract, keep demo fixtures separate from live API services, and handle validation and auth errors explicitly.
+## 11. Phase-by-Phase Development Protocol & Progress Tracking (`PROGRESS.md`)
 
-## 15. POS-Specific Correctness
+To guarantee zero-bug delivery, avoid context overload, and provide complete visibility to the user, development must proceed **strictly phase-by-phase**. Never attempt to scaffold, implement, and wire all modules in a single unbounded step.
 
-Keep order, payment, and fulfillment statuses distinct. Distinguish stock on hand, reserved stock, and available stock. Enforce module and action permissions both in the UI (`menu.jsonc` + route guards) and on the backend.
+---
 
-## 16. Accessibility and Responsive Behavior (Mobile, Tablet, and PC)
+### 11.1 The Phase-by-Phase Execution Lifecycle
 
-### 1. Mobile (`< 768px`)
+For every phase (Phase 1 through Phase 7), follow this 4-step lifecycle:
 
-- **Floating Sidebar (Admin Routes):** Hidden off-screen (`-translate-x-[calc(100%+1.5rem)]`) by default; opens as a floating rounded drawer over `.sidebar-backdrop`. Closes on route change, `Escape`, or backdrop tap.
-- **POS Screen (No Sidebar + Gear Dropdown):** Full-width layout with no sidebar. Topbar displays `.pos-gear-btn` which opens `.pos-gear-dropdown` containing the **Exit** item to return to Admin (`/`).
-- **Safari Input Focus (No Auto-Zoom):** All `.apple-input` and form controls compute to `16px` (`text-base`) so focusing an input on iOS Safari never zooms the screen.
-- **Grids & Tables:** Single-column cards (`grid-cols-1`) and horizontal scroll containers (`.table-container`) with `min-w-0` protection.
+```mermaid
+flowchart LR
+    A["1. Announce & Init<br/>Mark 'In Progress' in PROGRESS.md"] --> B["2. Implement<br/>Build Phase Deliverables"]
+    B --> C["3. Quality Gate<br/>Run Typecheck, Lint, Test"]
+    C --> D["4. Update & Report<br/>Mark 'Completed' in PROGRESS.md<br/>Present Phase Summary to User"]
+```
 
-### 2. Tablet (`768px - 1024px`, `md:`)
+1. **Step 1 — Announce & Mark In Progress:**
+   - Check `PROGRESS.md` in the project root (create it if at Phase 1).
+   - Set the current phase status to `🟡 In Progress`.
+   - Announce to the user which phase is starting, its objectives, and planned deliverables.
+2. **Step 2 — Implement Phase Deliverables:**
+   - Create and modify only the files scoped to the active phase.
+   - Follow all conventions: centralized `@apply` with `dark:` companions in `main.css`, Apple-style inputs, `$t()` translation keys for all visible strings, and deterministic SSR state.
+3. **Step 3 — Quality Gate Verification:**
+   - Execute verification checks (type-check, lint, or build) before concluding the phase.
+   - Inspect visual and layout constraints (offsets, dark mode toggle, Khmer font rendering, Safari focus no-zoom).
+   - Fix any errors immediately before proceeding.
+4. **Step 4 — Update `PROGRESS.md` & Report Progress:**
+   - Check off completed task items `[x]` in `PROGRESS.md`.
+   - Update the phase status to `🟢 Completed` with the completion timestamp.
+   - Update the overall project progress percentage and add an entry to the Activity Log.
+   - Present a concise progress report to the user summarizing what was built, verification status, and the next phase.
 
-- **Floating Sidebar (Admin Routes):** Toggleable floating drawer or collapsed rail (`w-20`).
-- **POS Screen (No Sidebar + Gear Dropdown):** Full-width 2-column split or collapsible cart drawer with the Gear Icon dropdown to exit to Admin.
-- **iPadOS Safari Input Focus (No Auto-Zoom):** Maintain `text-base` (`16px`) up through tablet breakpoints (`lg:text-sm` only on desktop `>= 1024px`).
+---
 
-### 3. PC / Desktop (`> 1024px`, `lg:` and `xl:`)
+### 11.2 Standard `PROGRESS.md` Specification & Template
 
-- **Floating Sidebar (Admin Routes):** Persistent floating left panel (`lg:translate-x-0`) toggling smoothly between expanded (`w-64` / `lg:pl-72`) and collapsed icon rail (`lg:w-20` / `lg:pl-28`).
-- **POS Screen (No Sidebar + Gear Dropdown):** Sidebar hidden and `.main-viewport-pos` resets left padding (`lg:pl-6`) for 100% width. Top-right Gear Icon opens the dropdown with **Exit** redirecting to Admin (`/`).
+Every project created or managed with this skill must contain a `PROGRESS.md` file in the project root. The agent must create this file during Phase 1 and maintain it diligently through Phase 7.
 
-## 17. Phased Implementation
+```markdown
+# POS Admin Dashboard — Project Progress Tracker
 
-1. **Phase 1 — Foundation & Bug-Free Layout Shell:** Initialize Nuxt 4, Tailwind CSS, and Pinia; configure `@apply` classes in `app/assets/css/main.css`; create `app/config/menu.jsonc`; build `default.vue`, `AppSidebar.vue`, and `AppTopbar.vue` with POS full-screen detection and the gear dropdown Exit action.
-2. **Phase 2 — Dashboard UI:** Build the overview page using semantic classes from `main.css`.
-3. **Phase 3 — Core POS Modules:** Build `/pos` (sidebar-free with gear dropdown Exit and `.apple-input` controls), products, categories, sales, and orders.
-4. **Phase 4 — Additional Modules:** Inventory, customers, suppliers, the users & roles CRUD module with permission matrix (section 10), reports, and settings.
-5. **Phase 5 — API Integration:** Connect to Laravel API and map permissions to `menu.jsonc`.
-6. **Phase 6 — Quality & Responsive Refinement:** Audit `@apply` centralization, layout geometry on admin vs POS routes, Safari focus no-zoom (`16px`), mobile/tablet/PC responsiveness, and build/typecheck results.
+> **Last Updated:** YYYY-MM-DD HH:mm:ss  
+> **Current Phase:** Phase X — [Phase Name]  
+> **Overall Status:** 🟡 In Progress (XX% Completed)
 
-## 18. Verification and Completion Report
+---
 
-Run configured checks (`npm run dev`, `npm run lint`, `npm run typecheck`, `npm run build`) and report:
+## 1. Project Overview & Target Architecture
 
-1. What changed.
-2. Files created or modified (`app/assets/css/main.css`, `app/config/menu.jsonc`, `app/layouts/default.vue`, `app/components/layout/AppTopbar.vue`, and any users / roles CRUD pages, stores, services, and types).
-3. Layout & responsive verification across Mobile, Tablet, and PC (including POS no-sidebar mode, gear dropdown Exit redirect, and Safari input no-zoom).
-4. Commands executed and actual results.
-5. Demo data vs live API status, assumptions, and recommended next step.
+- **Project Name:** POS Admin Dashboard
+- **Framework:** Nuxt 4 (Nuxt 4.6.1, Vue 3, TypeScript)
+- **Styling:** Tailwind CSS (`darkMode: 'class'`, centralized in `app/assets/css/main.css`)
+- **State Management:** Pinia (`auth`, `cart`, `preferences`, `users`, `roles`)
+- **Menu System:** JSONC (`app/config/menu.jsonc`) with `module` and `permission.view/create/edit/delete`
+- **i18n Locales:** English (`en`) & Khmer (`km`, ខ្មែរ) via `@nuxtjs/i18n`
+- **Themes:** Light & Dark (driven by `preferencesStore.theme` & CSS custom properties)
+- **POS Mode:** Full-screen layout without sidebar, with top-right Gear Dropdown Exit to admin
+- **Input Design:** Apple-style controls preventing Safari auto-zoom (`text-base lg:text-sm`)
 
-## 19. Editing This Skill
+---
 
-Update the relevant section when project requirements change: design tokens, `@apply` classes in `main.css`, `menu.jsonc` modules/permissions, users & roles CRUD rules and permission actions (section 10), POS layout rules, or backend API contracts.
+## 2. Phase Execution Matrix
 
-**Final rule:** If no project exists, set up Nuxt 4 and build the frontend only. If a project exists, inspect it and continue from its current state. Keep all Tailwind styling organized in `main.css` with `@apply`, style inputs with Apple-inspired `.apple-input` rules that prevent Safari auto-zoom on focus (`text-base lg:text-sm`), render the left sidebar in a bug-free floating style on admin pages driven by `menu.jsonc` with module names and view permissions, provide full CRUD for users and roles gated by `view` / `create` / `edit` / `delete` permission keys, hide the sidebar on the POS screen with a gear icon dropdown containing an Exit item to return to admin, and verify responsive behavior across mobile, tablet, and PC.
+| Phase | Phase Name | Status | Key Deliverables | Verified |
+| :---: | :--- | :---: | :--- | :---: |
+| **01** | Foundation & Layout Shell | 🟢 Completed | Nuxt 4 init, `main.css`, `menu.jsonc`, `default.vue`, `AppSidebar`, `AppTopbar` | [x] |
+| **02** | i18n & Light/Dark Theme | 🟡 In Progress | `@nuxtjs/i18n`, `en.json`, `km.json`, `useTheme`, `useLocale`, Topbar Switchers | [ ] |
+| **03** | Dashboard Overview | ⚪ Pending | Overview stats cards, sales chart, recent transactions, best sellers | [ ] |
+| **04** | Core POS Terminal & Catalog | ⚪ Pending | `/pos` terminal, cart store, products, categories, sales, orders | [ ] |
+| **05** | Users & Roles CRUD Module | ⚪ Pending | Users list/form, Roles list/form, `PermissionMatrix.vue`, delete safety | [ ] |
+| **06** | Optional Laravel API | ⚪ Pending | API client, live services, backend permission mapping (when requested) | [ ] |
+| **07** | Quality Audit & Final Build | ⚪ Pending | Safari no-zoom audit, responsive checks (Mobile/Tablet/PC), production build | [ ] |
+
+*Status Legend: ⚪ Pending · 🟡 In Progress · 🟢 Completed · 🔴 Blocked*
+
+---
+
+## 3. Detailed Phase Task Checklists
+
+### Phase 1 — Foundation, Layout Shell & POS Exit Mode
+- [ ] Initialize Nuxt 4 project (Node >= 24.22.0 LTS, Nuxt 4.6.1).
+- [ ] Configure `nuxt.config.ts`, `tailwind.config.ts` (`darkMode: 'class'`), and `@pinia/nuxt`.
+- [ ] Build `app/assets/css/main.css` with CSS custom property tokens, base rules, and `@apply` classes with `dark:` variants.
+- [ ] Create `app/config/menu.jsonc` with modules, routes, icons, and `permission.view/create/edit/delete` keys.
+- [ ] Build `app/utils/jsonc.ts` safe JSONC parser.
+- [ ] Build `app/composables/useMenu.ts` and `app/composables/usePermissions.ts`.
+- [ ] Build `app/layouts/default.vue` with dynamic layout mode (`isPosScreen`).
+- [ ] Build `app/components/layout/AppSidebar.vue` (floating left sidebar with collapse rail and mobile drawer).
+- [ ] Build `app/components/layout/AppTopbar.vue` (topbar with gear icon dropdown and Exit item on `/pos`).
+- [ ] Verify sidebar geometry: `lg:pl-72` (expanded), `lg:pl-28` (collapsed), `lg:pl-6` (POS).
+
+### Phase 2 — Dual-Locale i18n (`en`/`km`) & Light/Dark Theme System
+- [ ] Install and configure `@nuxtjs/i18n` in `nuxt.config.ts` (`strategy: 'no_prefix'`).
+- [ ] Create `app/locales/en.json` with all key namespaces (`nav`, `group`, `topbar`, `theme`, `lang`, `common`, `dashboard`, `users`, `roles`).
+- [ ] Create `app/locales/km.json` with complete Khmer (ខ្មែរ) translations mirroring `en.json`.
+- [ ] Create `app/stores/preferences.ts` with `locale` (`en`|`km`) and `theme` (`light`|`dark`).
+- [ ] Build `app/composables/useLocale.ts` to sync preferences store with Vue I18n runtime.
+- [ ] Build `app/composables/useTheme.ts` to toggle `<html class="dark">` and persist to `localStorage`.
+- [ ] Build `app/components/layout/LangSwitcher.vue` (EN / ខ្មែរ pill toggle).
+- [ ] Build `app/components/layout/ThemeToggle.vue` (Sun / Moon button with 44px touch target).
+- [ ] Mount switchers in `AppTopbar.vue` action cluster.
+- [ ] Wire `useTheme()` in `app.vue` for SSR hydration safety.
+
+### Phase 3 — Dashboard Overview & Real-Time Stats Grid
+- [ ] Build `app/pages/index.vue` with overview layout.
+- [ ] Build `app/components/shared/StatCard.vue` with percentage change indicators and icon badges.
+- [ ] Render 4 core metrics: Gross Sales, Net Sales, Transaction Count, Average Order Value.
+- [ ] Add Low-Stock Alert banner with direct action button.
+- [ ] Build responsive Sales Trend Chart component (or SVG sparkline).
+- [ ] Build Recent Transactions table with readable columns and status badges.
+- [ ] Build Best-Selling Products list with thumbnail placeholders.
+- [ ] Verify all strings use `$t()` and all elements have dark-mode styles.
+
+### Phase 4 — Core POS Terminal & Catalog/Order Modules
+- [ ] Build full-screen `app/pages/pos/index.vue` without sidebar, using 100% viewport width.
+- [ ] Build `app/stores/cart.ts` (items, quantities, subtotal, tax, discount, grand total).
+- [ ] Implement fast product catalog grid with barcode / search query filter.
+- [ ] Implement cart pane with quantity controls, line item discounts, and clear cart action.
+- [ ] Build Checkout Modal with payment method selector (Cash, Card, QR Code) and receipt summary.
+- [ ] Build `app/pages/products/index.vue` with search, category filter, and stock level badges.
+- [ ] Build `app/pages/categories/index.vue` with category tree and product count.
+- [ ] Build `app/pages/sales/index.vue` and `app/pages/orders/index.vue` with pagination.
+- [ ] Enforce `.apple-input` rules (`text-base lg:text-sm`) across all POS and search inputs.
+
+### Phase 5 — Users & Roles CRUD Module with Permission Matrix & Remaining Modules
+- [ ] Define domain types in `app/types/user.ts` and `app/types/role.ts`.
+- [ ] Build demo services `app/services/demo/users.ts` and `app/services/demo/roles.ts` (with 422 error simulation).
+- [ ] Build Pinia stores `app/stores/users.ts` and `app/stores/roles.ts`.
+- [ ] Build `app/pages/users/index.vue` (list, search, role/status filter, row actions gated by permissions).
+- [ ] Build `app/pages/users/new.vue` and `app/pages/users/[id].vue` with Apple-style inputs and validation.
+- [ ] Build `app/pages/roles/index.vue` (list with user count, permissions count, system badges).
+- [ ] Build `app/components/roles/PermissionMatrix.vue` dynamically generated from `menu.jsonc`.
+- [ ] Build `app/pages/roles/new.vue` and `app/pages/roles/[id].vue`.
+- [ ] Enforce delete safety rules (no deleting self, no deleting last admin, no deleting system roles).
+- [ ] Implement remaining management pages: `app/pages/inventory/index.vue`, `app/pages/customers/index.vue`, `app/pages/reports/index.vue`, and `app/pages/settings/index.vue`.
+
+### Phase 6 — Optional Laravel API Integration
+- [ ] Verify whether a Laravel API backend is requested or present.
+- [ ] Build `app/services/api/client.ts` with `useFetch` / `$fetch` base client and auth interceptors.
+- [ ] Implement live `app/services/users.ts` and `app/services/roles.ts` keeping demo contracts identical.
+- [ ] Map backend role permissions to `menu.jsonc` action keys.
+- [ ] Handle backend 422 validation envelopes and toast notifications.
+
+### Phase 7 — Responsive Quality Audit, Safari No-Zoom & Production Build
+- [ ] Audit Mobile viewport (`< 768px`): floating drawer, full-width POS, zero horizontal scroll.
+- [ ] Audit Tablet viewport (`768px - 1024px`): collapsed sidebar rail, 2-column POS cart.
+- [ ] Audit PC viewport (`>= 1024px`): expanded/collapsed sidebar offsets (`lg:pl-72`, `lg:pl-28`, `lg:pl-6`).
+- [ ] Verify Safari no-zoom: all inputs, selects, and textareas compute to >= 16px below 1024px.
+- [ ] Run `npm run lint` and resolve any warnings.
+- [ ] Run `npm run typecheck` and ensure zero TypeScript errors.
+- [ ] Run `npm run build` and ensure clean production SSR/client bundle generation.
+- [ ] Finalize `PROGRESS.md` with 100% completion status.
+
+---
+
+## 4. Verification & Build Log
+
+| Timestamp | Phase | Command / Check | Result | Notes |
+| :--- | :---: | :--- | :---: | :--- |
+| YYYY-MM-DD HH:mm | 01 | Layout geometry & dev server | PASS | Sidebar offsets and POS full-width verified |
+
+---
+
+## 5. Activity & Change Log
+
+| Timestamp | Phase | Action / Changes Made | Author |
+| :--- | :---: | :--- | :--- |
+| YYYY-MM-DD HH:mm | 01 | Scaffolding complete; layout shell & topbar created | Agent |
+
+---
+
+## 6. Issues, Blockers & Decisions Log
+
+| ID | Phase | Description | Status | Resolution / Decision |
+| :---: | :---: | :--- | :---: | :--- |
+| D-01 | 01 | Tailwind CSS v4 vs v3 detection | Resolved | Applied `@apply` classes compatible with active version |
+```
+
+---
+
+### 11.3 Detailed Phase Breakdown & Quality Gates
+
+#### Phase 1: Foundation, Layout Shell & POS Exit Mode
+- **Goal:** Set up the project, base styling, declarative navigation, and zero-bug layout shell.
+- **Key Deliverables:** Nuxt 4 initialization, `main.css`, `menu.jsonc`, `jsonc.ts`, `default.vue`, `AppSidebar.vue`, `AppTopbar.vue`.
+- **Quality Gate (Exit Criteria):**
+  1. `npm run dev` starts cleanly without configuration errors.
+  2. Sidebar geometry matches strictly: `lg:pl-72` when expanded, `lg:pl-28` when collapsed, `lg:pl-6` on `/pos`.
+  3. Visiting `/pos` hides the sidebar, removes desktop padding, and shows the Gear button.
+  4. Clicking the Gear dropdown's **Exit** button redirects to `/` and closes the dropdown.
+  5. `PROGRESS.md` created in root and Phase 1 tasks checked off.
+
+#### Phase 2: Dual-Locale i18n (`en`/`km`) & Light/Dark Theme System
+- **Goal:** Enable instant English/Khmer internationalization and accessible Light/Dark theme switching.
+- **Key Deliverables:** `@nuxtjs/i18n` config, `en.json`, `km.json`, `preferences.ts` Pinia store, `useLocale.ts`, `useTheme.ts`, `LangSwitcher.vue`, `ThemeToggle.vue`.
+- **Quality Gate (Exit Criteria):**
+  1. Toggling the language switch between `EN` and `ខ្មែរ` switches all visible text instantly without page reload.
+  2. Toggling the theme switch immediately adds/removes the `dark` class on `<html>` and persists in `localStorage` under `pos-theme`.
+  3. Reloading the page retains the user's selected language and theme without hydration flash.
+  4. Zero missing translation key warnings in the console.
+
+#### Phase 3: Dashboard Overview & Real-Time Statistics
+- **Goal:** Build the primary retail analytics dashboard with responsive cards and tables.
+- **Key Deliverables:** `pages/index.vue`, `StatCard.vue`, sales trend chart, recent transactions table, low-stock banner.
+- **Quality Gate (Exit Criteria):**
+  1. Overview renders 4 key metrics with status indicators.
+  2. All headings, labels, and table column names use `$t()`.
+  3. All cards render cleanly in both Light and Dark themes with zero contrast issues.
+  4. Tables use `table-container` with `overflow-x-auto` to prevent horizontal viewport blowout on mobile.
+
+#### Phase 4: Core POS Terminal & Catalog/Order Modules
+- **Goal:** Deliver the dedicated, full-screen POS terminal and core commercial catalog pages.
+- **Key Deliverables:** `pages/pos/index.vue`, `cart.ts` store, checkout modal, `pages/products/index.vue`, `pages/categories/index.vue`, `pages/sales/index.vue`, `pages/orders/index.vue`.
+- **Quality Gate (Exit Criteria):**
+  1. The POS screen occupies 100% of the viewport with no sidebar gutter (`lg:pl-6`).
+  2. Items can be added to the cart, quantities adjusted, and subtotal/tax/totals calculated accurately.
+  3. Checkout modal processes payment simulation and resets the cart cleanly.
+  4. All inputs, search bars, and quantity steppers compute to `>= 16px` on mobile/tablet (preventing iOS Safari auto-zoom).
+
+#### Phase 5: Users & Roles CRUD Module with Permission Matrix & Remaining Modules
+- **Goal:** Deliver staff administration with role-based permissions and complete the remaining management modules.
+- **Key Deliverables:** `pages/users/*`, `pages/roles/*`, `PermissionMatrix.vue`, `users.ts` store, `roles.ts` store, demo services, `pages/inventory/index.vue`, `pages/customers/index.vue`, `pages/reports/index.vue`, `pages/settings/index.vue`.
+- **Quality Gate (Exit Criteria):**
+  1. Full Create, Read, Update, and Delete operations work in demo mode with simulated network delay.
+  2. Form errors match the Laravel 422 envelope format (`{ errors: { email: ['...'] } }`) and display beside inputs.
+  3. Dynamic `PermissionMatrix.vue` matches modules from `menu.jsonc` exactly.
+  4. Delete safety rules are enforced (cannot delete self, last admin, or system roles).
+  5. Action buttons (`create`, `edit`, `delete`) respect the active user's permissions in `auth.ts`.
+
+#### Phase 6: Optional Laravel API Integration
+- **Goal:** Connect frontend services to a real Laravel backend when configured or requested.
+- **Key Deliverables:** `app/services/api/client.ts`, API-backed `users.ts` and `roles.ts`, Sanctum/Bearer token handling.
+- **Quality Gate (Exit Criteria):**
+  1. API client uses `runtimeConfig.public.apiBase` with credentials and headers.
+  2. Switch from demo fixtures to live API requires zero changes to Vue page components.
+  3. Auth failure redirects to login; validation errors map cleanly to form error states.
+
+#### Phase 7: Responsive Quality Audit, Safari No-Zoom & Production Build
+- **Goal:** Final quality assurance, multi-device viewport audit, and production build verification.
+- **Key Deliverables:** Verified production bundle, updated documentation, 100% completed `PROGRESS.md`.
+- **Quality Gate (Exit Criteria):**
+  1. `npm run lint` passes with zero errors.
+  2. `npm run typecheck` passes with zero TypeScript diagnostics.
+  3. `npm run build` succeeds and produces optimized client/server outputs.
+  4. Verified on Mobile (`< 768px`), Tablet (`768px - 1024px`), and Desktop (`>= 1024px`).
+  5. `PROGRESS.md` is fully marked `[x]` with all phases `🟢 Completed`.
+
+---
+
+### 11.4 Responsive Viewport Verification Standards
+
+1. **Mobile (`< 768px`):**
+   - Floating sidebar is hidden off-screen (`-translate-x-[calc(100%+1.5rem)]`) and opens as a floating drawer over `.sidebar-backdrop` (`z-30`).
+   - POS screen operates at 100% width with no sidebar, showing `.pos-gear-btn` in the topbar to exit to admin.
+   - All `.apple-input`, search bars, and selects compute to `16px` (`text-base`) so iOS Safari never auto-zooms on focus.
+   - Grids collapse to single-column (`grid-cols-1`) and tables scroll within `.table-container`.
+2. **Tablet (`768px - 1024px`, `md:`):**
+   - Sidebar functions as a toggleable floating drawer or collapsed rail (`w-20`).
+   - POS screen displays a 2-column layout (catalog + cart pane) with top-right Gear Exit button.
+   - Form controls maintain `text-base` (`16px`) up through tablet breakpoints (`lg:text-sm` only applies at `>= 1024px`).
+3. **PC / Desktop (`>= 1024px`, `lg:` / `xl:`):**
+   - Sidebar is persistently visible, smoothly transitioning between expanded (`w-64` / `lg:pl-72`) and collapsed icon rail (`lg:w-20` / `lg:pl-28`).
+   - POS screen hides sidebar completely and resets padding (`.main-viewport-pos` at `lg:pl-6`).
+
+---
+
+### 11.5 Phase Completion Reporting Protocol
+
+At the end of every phase, present a standardized progress summary to the user:
+
+```markdown
+### ✅ Phase X Completed: [Phase Name]
+
+**Deliverables Completed:**
+- `app/path/to/file.vue` — Description of component/page built
+- `app/path/to/file.ts` — Description of store/composable/service built
+
+**Verification Results:**
+- [x] Typecheck / Build status: PASS (0 errors)
+- [x] Layout & Geometry: `lg:pl-72` / `lg:pl-28` / `lg:pl-6` verified
+- [x] i18n & Theme: English/Khmer tested, Light/Dark verified
+- [x] Safari No-Zoom: Inputs >= 16px below 1024px confirmed
+
+**Project Progress:** [██████░░░░] 60% Completed  
+**Tracker Status:** `PROGRESS.md` updated.
+
+**Next Milestone:** Phase X+1 — [Next Phase Name]
+```
+
+---
+
+## 12. Verification and Completion Report
+
+When all requested phases are completed, run the final verification checks (`npm run lint`, `npm run typecheck`, `npm run build`) and report:
+
+1. **Executive Summary:** What was built or modified during the session.
+2. **Files Created & Modified:** Complete list of all files under `app/`, `config/`, `locales/`, and `PROGRESS.md`.
+3. **Phase Matrix & Tracker Status:** Confirmation that `PROGRESS.md` reflects all completed milestones.
+4. **i18n Key Coverage:** Confirm all visible strings use `$t()` / `t()` across English (`en`) and Khmer (`km`).
+5. **Theme System Status:** Confirm `<html class="dark">` toggling, localStorage persistence, and `@apply` `dark:` coverage.
+6. **Layout & Responsive Verification:** Mobile, tablet, and PC geometry audit results (including POS no-sidebar mode and Safari focus no-zoom).
+7. **Commands Executed & Actual Results:** Exact commands run with their terminal output status.
+8. **Demo vs Live API Status:** Clear declaration of whether demo services or Laravel endpoints are active, with recommended next steps.
+
+---
+
+## 13. Editing This Skill
+
+Update the relevant section when project requirements change:
+- **Design tokens & CSS classes:** Section 10 (`app/assets/css/main.css`).
+- **Sidebar navigation & permissions:** Section 5 (`app/config/menu.jsonc`).
+- **Users & Roles CRUD rules:** Section 6.
+- **i18n translation keys:** Section 8 (`app/locales/en.json` & `km.json`).
+- **Theme tokens:** Section 9 & 10.
+- **Phase tasks & milestones:** Section 11 (`PROGRESS.md` template & breakdown).
+- **Backend API contracts:** Section 2 & 6.
+
+**Final Rule:** If no project exists, set up Nuxt 4 and build the frontend only. If a project exists, inspect it and continue from its current state. Always develop **strictly phase-by-phase**, maintain a live `PROGRESS.md` tracker, keep all Tailwind styling centralized in `main.css` with `@apply` and `dark:` companions, enforce Apple-style inputs that prevent Safari auto-zoom (`text-base lg:text-sm`), render the floating left sidebar driven by `menu.jsonc` with module names and view permissions, provide full Users & Roles CRUD with `view/create/edit/delete` permission gates, hide the sidebar on the POS screen with a gear icon dropdown Exit to admin, support **English and Khmer** via `@nuxtjs/i18n`, and verify responsive behavior across mobile, tablet, and PC.
