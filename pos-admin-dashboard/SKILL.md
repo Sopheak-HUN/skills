@@ -1,6 +1,6 @@
 ---
 name: pos-admin-dashboard
-description: Design, initialize, build, and iteratively improve a POS admin dashboard using Nuxt 4, Tailwind CSS (@apply in main.css), Pinia, a floating left sidebar driven by a JSONC menu config with module names and view permissions, a users & roles CRUD module with role-based action permissions (view/create/edit/delete), full-screen POS mode without sidebar and with a gear icon dropdown to exit to admin, Apple-style inputs that prevent iOS Safari auto-zoom on focus, bug-free responsive layouts across mobile, tablet, and PC, i18n with English and Khmer locales (@nuxtjs/i18n), a Light/Dark dual-theme system driven by a Pinia preferences store and CSS custom properties, and a structured phase-by-phase development workflow with a live PROGRESS.md execution tracker. Use for POS dashboard layouts, products, sales, orders, inventory, customers, reports, users and roles CRUD, permission management, settings, and UI refinement.
+description: Design, initialize, build, and iteratively improve a POS admin dashboard using Nuxt 4, Tailwind CSS (@apply in main.css), Pinia, a floating left sidebar driven by a JSONC menu config with module names and view permissions, a users & roles CRUD module with role-based action permissions (view/create/edit/delete), full-screen POS mode without sidebar and with a gear icon dropdown to exit to admin, Apple-style inputs that prevent iOS Safari auto-zoom on focus, every select rendered through vue-multiselect (AppSelect.vue) and rounded custom checkboxes, bug-free responsive layouts across mobile, tablet, and PC, i18n with English and Khmer locales (@nuxtjs/i18n), a Light/Dark dual-theme system driven by a Pinia preferences store and CSS custom properties, and a structured phase-by-phase development workflow with a live PROGRESS.md execution tracker. Use for POS dashboard layouts, products, sales, orders, inventory, customers, reports, users and roles CRUD, permission management, settings, and UI refinement.
 user-invocable: true
 ---
 
@@ -16,7 +16,7 @@ If no project exists, initialize a Nuxt 4 frontend project and configure the req
 
 If a project already exists, inspect its structure and continue using its established conventions. Do not recreate or overwrite an existing project.
 
-The dashboard must support realistic retail workflows, accessible interactions, reusable components, centralized `@apply` styling in `main.css`, Apple-style input controls that prevent iOS/iPadOS Safari auto-zoom on focus, a floating left sidebar driven by a `.jsonc` menu configuration with module and view-permission metadata, a users and roles management module with full CRUD and role-based action permissions (`view` / `create` / `edit` / `delete`), a full-screen POS terminal view (with no sidebar and a gear icon dropdown menu featuring an "Exit" item that redirects to the admin dashboard) whose product search and cart **always display each product's image, title, price, and available stock**, **i18n with English (`en`) and Khmer (`km`) locales powered by `@nuxtjs/i18n`**, **a Light / Dark dual-theme system driven by the Pinia preferences store and CSS custom properties**, and strict zero-bug layout rules across mobile, tablet, and PC.
+The dashboard must support realistic retail workflows, accessible interactions, reusable components, centralized `@apply` styling in `main.css`, Apple-style input controls that prevent iOS/iPadOS Safari auto-zoom on focus, **every select rendered through `vue-multiselect` (`AppSelect.vue`, never a native `<select>`)**, **rounded custom `.apple-checkbox` controls**, a floating left sidebar driven by a `.jsonc` menu configuration with module and view-permission metadata, a users and roles management module with full CRUD and role-based action permissions (`view` / `create` / `edit` / `delete`), a full-screen POS terminal view (with no sidebar and a gear icon dropdown menu featuring an "Exit" item that redirects to the admin dashboard) whose product search and cart **always display each product's image, title, price, and available stock**, **i18n with English (`en`) and Khmer (`km`) locales powered by `@nuxtjs/i18n`**, **a Light / Dark dual-theme system driven by the Pinia preferences store and CSS custom properties**, and strict zero-bug layout rules across mobile, tablet, and PC.
 
 **Execution Rule: Strict Phase-by-Phase Development & Live Progress Tracking.**
 Development must proceed phase by phase. Never jump ahead or dump all code in a single massive step without completing, verifying, and recording progress. At the start of Phase 1, create `PROGRESS.md` in the project root. After each phase, verify exit criteria, update `PROGRESS.md` with status and completion timestamps, and report progress to the user.
@@ -57,6 +57,7 @@ Install and configure:
 - **Tailwind CSS:** Compatible Nuxt integration with `darkMode: 'class'`
 - **Pinia:** `@pinia/nuxt` and `pinia`
 - **i18n:** `@nuxtjs/i18n` (`en` and `km` locales)
+- **Selects:** `vue-multiselect@^3.5.0` (Vue 3 line; the only UI component library allowed)
 - Only the additional libraries required for the requested features.
 
 Use the package manager indicated by the existing lockfile (`npm` by default for new projects unless specified otherwise).
@@ -85,7 +86,9 @@ Unless explicitly requested, do **not**:
 - Generate backend controllers, models, or API routes.
 - Introduce Bootstrap into this Tailwind project.
 - Scatter inline Tailwind utility strings across Vue templates when they belong in `main.css` via `@apply`.
-- Install unnecessary component libraries or dependencies.
+- Install unnecessary component libraries or dependencies. `vue-multiselect` is the single allowed exception.
+- Render a native `<select>` element. Use `AppSelect.vue` instead.
+- Import `vue-multiselect`'s bundled CSS. Its skin lives in `main.css`.
 - Replace an existing project with a new scaffold.
 - Add a third language beyond `en` and `km`.
 - Add more than two themes (`light` / `dark`).
@@ -98,6 +101,7 @@ Unless explicitly requested, do **not**:
 
 - **Framework:** Nuxt 4 (`<script setup lang="ts">`, file-based routing, SSR-safe composables).
 - **Styling:** Tailwind CSS centralized in `app/assets/css/main.css` using `@apply`, `darkMode: 'class'`, and CSS custom properties (`--color-*`).
+- **Form Controls:** `vue-multiselect` `^3.5.0` wrapped by `AppSelect.vue` for every select, and rounded custom `.apple-checkbox` inputs.
 - **Menu Configuration:** JSONC (`app/config/menu.jsonc`) with module and permission definitions.
 - **State Management:** Pinia (`auth`, `cart`, `preferences`, `users`, `roles`).
 - **Internationalization:** `@nuxtjs/i18n` with `en` (English) and `km` (ខ្មែរ / Khmer) synced with `preferencesStore.locale`.
@@ -142,6 +146,7 @@ app/
       LangSwitcher.vue
       ThemeToggle.vue
     shared/
+      AppSelect.vue    # vue-multiselect wrapper, the only select control
       StatCard.vue
       StatusBadge.vue
       DataTable.vue
@@ -756,8 +761,8 @@ export interface UserService {
 ### Pages, Permission Matrix & Safety Rules
 
 - **Routes:** `pages/users/index.vue`, `pages/users/new.vue`, `pages/users/[id].vue`, `pages/roles/index.vue`, `pages/roles/new.vue`, `pages/roles/[id].vue`.
-- **Users List & Form:** Filter via `.apple-search-input` and `.apple-select` synced with URL query params. Gate "New User" on `users.create` and row actions on `users.edit` / `users.delete`. Render password fields only on create or explicit "Reset password" toggle (`autocomplete="new-password"`).
-- **Permission Matrix (`app/components/roles/PermissionMatrix.vue`):** Build rows dynamically from `menu.jsonc` (`const ACTIONS = ['view', 'create', 'edit', 'delete'] as const`) so the matrix never drifts from sidebar modules. Include per-row and per-column "Select all" toggles and a live granted-permissions count using `.permission-matrix` and `.apple-checkbox`.
+- **Users List & Form:** Filter via `.apple-search-input` and `AppSelect.vue` (role and status) synced with URL query params. The form's role picker is also `AppSelect.vue`, and the active flag is a `.checkbox-field` + `.apple-checkbox`. Gate "New User" on `users.create` and row actions on `users.edit` / `users.delete`. Render password fields only on create or explicit "Reset password" toggle (`autocomplete="new-password"`).
+- **Permission Matrix (`app/components/roles/PermissionMatrix.vue`):** Build rows dynamically from `menu.jsonc` (`const ACTIONS = ['view', 'create', 'edit', 'delete'] as const`) so the matrix never drifts from sidebar modules. Include per-row and per-column "Select all" toggles and a live granted-permissions count using `.permission-matrix` and the rounded `.apple-checkbox`. Bind `:indeterminate` on each "Select all" toggle when only part of its row or column is granted.
 - **Delete & Safety Guards:** Require confirmation modal (`.modal-backdrop` / `.modal-card`) naming the target record. Clicking the backdrop must not close it (see Section 4, "Modal & Dialog Dismissal") — only the Cancel/✕ button or confirming the delete does. Block and explain in the UI when attempting to:
   1. Delete the currently signed-in user's own account.
   2. Delete or deactivate the last active user holding `users.edit`.
@@ -896,8 +901,134 @@ Add to both `app/locales/en.json` and `app/locales/km.json`: `pos.searchPlacehol
 
 ### Apple-Style Input Design & Safari Auto-Zoom Prevention
 
-- **Prevent iOS / iPadOS Safari Auto-Zoom on Focus:** Safari on iPhone and iPad automatically zooms the viewport whenever a user focuses an `<input>`, `<select>`, or `<textarea>` with a computed `font-size` below `16px`. Always enforce `text-base lg:text-sm` (`16px` below `1024px`, `14px` on desktop) on all text/search/select/quantity controls.
-- **Native Checkboxes & Radios:** Scope `appearance-none` to text-like inputs (`input:not([type="checkbox"]):not([type="radio"]), select, textarea`) so `.apple-checkbox` keeps native accessible rendering.
+- **Prevent iOS / iPadOS Safari Auto-Zoom on Focus:** Safari on iPhone and iPad automatically zooms the viewport whenever a user focuses an `<input>`, `<select>`, or `<textarea>` with a computed `font-size` below `16px`. Always enforce `text-base lg:text-sm` (`16px` below `1024px`, `14px` on desktop) on all text/search/quantity controls and on the `vue-multiselect` search input (`.multiselect__input`) and options.
+- **Checkboxes & Radios:** The global base rule scopes `appearance-none` to text-like inputs (`input:not([type="checkbox"]):not([type="radio"]), select, textarea`). `.apple-checkbox` opts into its own rounded custom style explicitly. Radios stay native.
+
+### Select Controls: `vue-multiselect` Only (`app/components/shared/AppSelect.vue`)
+
+Every single-choice and multi-choice picker (role, status, category, payment method, filters, locale-independent enums) MUST render through `AppSelect.vue`, a thin wrapper around [`vue-multiselect`](https://vue-multiselect.js.org/) `^3.5.0` (the Vue 3 line, ships its own `index.d.ts`). **Never render a native `<select>` element** anywhere in the app.
+
+- **Install:** `npm install vue-multiselect@^3.5.0`. This is the only third-party UI component library allowed.
+- **No vendor CSS:** Do **not** import `vue-multiselect/dist/vue-multiselect.css`. The full skin lives in `main.css` (Section 11, "vue-multiselect Skin") so it matches `.apple-input` and has `dark:` companions.
+- **Import locally:** Import `VueMultiselect` only inside `AppSelect.vue`. Do not register it globally in a plugin. Pages and components use `<AppSelect>` exclusively.
+- **Value contract:** `v-model` carries the primitive key (`id` / enum value), or an array of keys when `multiple`. The wrapper maps keys to option objects internally, so stores and forms never hold option objects.
+- **Unique ids:** `vue-multiselect` defaults `id` to `null`, which would render duplicate `listbox-null` ids. Always pass `useId()` (or a caller-supplied `inputId` that matches the `<label for>`).
+- **i18n:** Pass translated `placeholder`, and fill the `noResult`, `noOptions`, and `maxElements` slots with `t()`. Set `:show-labels="false"` so the English "Press enter to select" hints never render. Option labels must already be translated (`t('users.active')`) before they reach `options`.
+- **Safari no-zoom:** The internal search `<input class="multiselect__input">` is covered by the global base rule and explicitly by `.multiselect__input` (`text-base lg:text-sm`). The visible control (`.multiselect__tags`) keeps `min-h-[44px]`.
+- **Clipping:** Dropdowns render `absolute` below the control. Inside `.table-container`, a modal body with `overflow-y-auto`, or any other `overflow` ancestor, pass `teleport` so the menu is moved to `<body>` and never gets clipped.
+- **SSR:** `vue-multiselect` 3.x renders on the server. If a hydration mismatch ever appears, wrap the call site in `<ClientOnly>` with a `.multiselect-skeleton` fallback of identical height. Never fall back to a native `<select>`.
+
+```vue
+<!-- app/components/shared/AppSelect.vue -->
+<script setup lang="ts">
+import VueMultiselect from 'vue-multiselect'
+
+type Key = string | number
+type Option = Record<string, unknown>
+
+const props = withDefaults(defineProps<{
+  options: Option[]
+  valueKey?: string          // field emitted through v-model (e.g. 'id', 'value')
+  labelKey?: string          // field displayed (already translated)
+  multiple?: boolean
+  searchable?: boolean
+  placeholder?: string
+  disabled?: boolean
+  loading?: boolean
+  invalid?: boolean          // true when a 422 error exists for this field
+  inputId?: string
+  name?: string
+  teleport?: boolean         // use inside overflow containers (tables, scrolling modals)
+  openDirection?: 'auto' | 'above' | 'below'
+  max?: number
+}>(), {
+  valueKey: 'value',
+  labelKey: 'label',
+  multiple: false,
+  searchable: true,
+  teleport: false,
+  openDirection: 'auto'
+})
+
+const model = defineModel<Key | Key[] | null>({ default: null })
+const { t } = useI18n()
+const fallbackId = useId()
+
+const selected = computed<Option | Option[] | null>({
+  get: () => {
+    if (props.multiple) {
+      const keys = Array.isArray(model.value) ? model.value : []
+      return props.options.filter(o => keys.includes(o[props.valueKey] as Key))
+    }
+    return props.options.find(o => o[props.valueKey] === model.value) ?? null
+  },
+  set: (value) => {
+    model.value = Array.isArray(value)
+      ? value.map(o => o[props.valueKey] as Key)
+      : value ? (value[props.valueKey] as Key) : null
+  }
+})
+</script>
+
+<template>
+  <VueMultiselect
+    v-model="selected"
+    :id="inputId ?? fallbackId"
+    :name="name ?? inputId ?? fallbackId"
+    :options="options"
+    :track-by="valueKey"
+    :label="labelKey"
+    :multiple="multiple"
+    :searchable="searchable"
+    :placeholder="placeholder ?? t('select.placeholder')"
+    :disabled="disabled"
+    :loading="loading"
+    :max="max"
+    :close-on-select="!multiple"
+    :clear-on-select="!multiple"
+    :preserve-search="multiple"
+    :show-labels="false"
+    :open-direction="openDirection"
+    :use-teleport="teleport"
+    :class="{ 'multiselect--invalid': invalid }"
+    :aria-invalid="invalid || undefined"
+  >
+    <template #noResult>{{ t('select.noResult') }}</template>
+    <template #noOptions>{{ t('select.noOptions') }}</template>
+    <template #maxElements>{{ t('select.maxElements', { n: max ?? 0 }) }}</template>
+  </VueMultiselect>
+</template>
+```
+
+Usage:
+
+```vue
+<label class="form-label" for="user-role">{{ $t('users.role') }}</label>
+<AppSelect
+  v-model="form.roleId"
+  input-id="user-role"
+  :options="roleOptions"
+  value-key="id"
+  label-key="name"
+  :invalid="!!errors.roleId"
+/>
+<p v-if="errors.roleId" class="form-error">{{ errors.roleId[0] }}</p>
+```
+
+### Rounded Checkboxes (`.apple-checkbox`)
+
+- **Custom rounded style:** `.apple-checkbox` is a real `<input type="checkbox">` with `appearance-none`, a `rounded-md` 20px box, a `2px` slate border, and a blue fill with a white SVG check when `:checked`. Never replace it with a `<div>` or icon button, so keyboard, form, and screen-reader behaviour stay native.
+- **Indeterminate:** Bind `:indeterminate` for "Select all" row/column toggles in `PermissionMatrix.vue` when only some cells are granted. `.apple-checkbox:indeterminate` draws a white dash on the blue fill.
+- **Touch target:** The box stays 20px, but wrap it in `<label class="checkbox-field">` (or a matrix `<td>`) that provides `min-h-[44px]`. Every checkbox has a visible label or an `aria-label` from `t()`.
+- **States:** Hover darkens the border, `focus-visible` shows the same `ring-4` halo as `.apple-input`, `disabled` drops to 50% opacity. All states have `dark:` companions.
+- **Radios:** Radios are not part of this change and stay native.
+
+```vue
+<label class="checkbox-field">
+  <input v-model="form.isActive" type="checkbox" class="apple-checkbox">
+  <span>{{ $t('users.active') }}</span>
+</label>
+```
 
 ---
 
@@ -997,6 +1128,18 @@ export default defineNuxtConfig({
     "noResults": "No results found",
     "confirmDelete": "Are you sure you want to delete \"{name}\"?",
     "permissionDenied": "You do not have permission to view this page."
+  },
+  "select": {
+    "placeholder": "ជ្រើសរើសជម្រើស",
+    "noResult": "រកមិនឃើញជម្រើសដែលត្រូវគ្នា",
+    "noOptions": "មិនមានជម្រើស",
+    "maxElements": "អ្នកអាចជ្រើសរើសបានច្រើនបំផុត {n} ជម្រើស"
+  },
+  "select": {
+    "placeholder": "Select an option",
+    "noResult": "No matching options",
+    "noOptions": "No options available",
+    "maxElements": "You can select up to {n} options"
   },
   "dashboard": {
     "grossSales": "Gross Sales",
@@ -1496,8 +1639,7 @@ export default {
   }
 
   .apple-input,
-  .form-input,
-  .apple-select {
+  .form-input {
     @apply w-full min-h-[44px] px-3.5 py-2.5 rounded-xl bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200/90 dark:border-slate-700/90 text-base lg:text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 appearance-none shadow-sm transition-all duration-200 focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/15 dark:focus:ring-blue-400/15 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed;
     touch-action: manipulation;
     -webkit-appearance: none;
@@ -1509,8 +1651,30 @@ export default {
     -webkit-appearance: none;
   }
 
+  /* Rounded custom checkbox: still a native <input type="checkbox"> for a11y */
   .apple-checkbox {
-    @apply h-5 w-5 rounded-md accent-blue-600 dark:accent-blue-400 cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/15;
+    @apply relative inline-block shrink-0 h-5 w-5 rounded-md border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 align-middle appearance-none cursor-pointer transition-colors duration-150 hover:border-blue-500 dark:hover:border-blue-400 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/20 dark:focus-visible:ring-blue-400/20 disabled:opacity-50 disabled:cursor-not-allowed;
+    -webkit-appearance: none;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 0.875rem 0.875rem;
+  }
+
+  .apple-checkbox:checked,
+  .apple-checkbox:indeterminate {
+    @apply border-blue-600 bg-blue-600 dark:border-blue-500 dark:bg-blue-500 hover:border-blue-700 dark:hover:border-blue-400;
+  }
+
+  .apple-checkbox:checked {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.5 8.5l3 3 6-6.5'/%3E%3C/svg%3E");
+  }
+
+  .apple-checkbox:indeterminate {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M4 8h8'/%3E%3C/svg%3E");
+  }
+
+  .checkbox-field {
+    @apply inline-flex items-center gap-2.5 min-h-[44px] cursor-pointer select-none text-sm text-slate-700 dark:text-slate-200;
   }
 
   .stats-grid {
@@ -1619,6 +1783,141 @@ export default {
     @apply h-3 rounded-full bg-slate-200 dark:bg-slate-700 animate-pulse;
   }
 }
+
+/* ───────────────────────────────────────────────────────────────────────────
+   vue-multiselect Skin (AppSelect.vue)
+   Kept OUTSIDE @layer on purpose: the .multiselect__* classes are created by the
+   library at runtime and never appear in app/**, so Tailwind v3 would purge them
+   from @layer components. Do not import vue-multiselect's own CSS.
+   ─────────────────────────────────────────────────────────────────────────── */
+.multiselect {
+  @apply relative block w-full min-h-[44px] text-base lg:text-sm text-slate-900 dark:text-slate-100 cursor-pointer outline-none;
+  touch-action: manipulation;
+}
+
+.multiselect--disabled {
+  @apply opacity-50 cursor-not-allowed pointer-events-none;
+}
+
+.multiselect__tags {
+  @apply flex flex-wrap items-center gap-1.5 w-full min-h-[44px] pl-3.5 pr-10 py-2 rounded-xl bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200/90 dark:border-slate-700/90 shadow-sm transition-all duration-200;
+}
+
+.multiselect--active .multiselect__tags {
+  @apply bg-white dark:bg-slate-800 border-blue-500 dark:border-blue-400 ring-4 ring-blue-500/15 dark:ring-blue-400/15;
+}
+
+.multiselect--invalid .multiselect__tags {
+  @apply border-rose-500 dark:border-rose-400 ring-4 ring-rose-500/15 dark:ring-rose-400/15;
+}
+
+.multiselect__tags-wrap {
+  @apply contents;
+}
+
+.multiselect__tag {
+  @apply inline-flex items-center gap-1 max-w-full pl-2.5 pr-1 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 text-xs font-medium;
+}
+
+.multiselect__tag > span {
+  @apply truncate;
+}
+
+.multiselect__tag-icon {
+  @apply inline-flex items-center justify-center w-5 h-5 rounded-md not-italic cursor-pointer text-blue-500 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/60 hover:text-blue-700 dark:hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500;
+}
+
+.multiselect__tag-icon::after {
+  content: '×';
+  @apply text-sm leading-none;
+}
+
+.multiselect__input,
+.multiselect__single,
+.multiselect__placeholder {
+  @apply flex-1 min-w-0 m-0 p-0 bg-transparent border-0 shadow-none text-base lg:text-sm leading-6 truncate;
+}
+
+.multiselect__input {
+  @apply text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:outline-none focus:ring-0;
+  touch-action: manipulation;
+  -webkit-appearance: none;
+}
+
+.multiselect__single {
+  @apply block text-slate-900 dark:text-slate-100;
+}
+
+.multiselect__placeholder {
+  @apply block text-slate-400 dark:text-slate-500;
+}
+
+.multiselect__select {
+  @apply absolute right-1 top-1/2 -translate-y-1/2 z-[1] flex items-center justify-center w-9 h-9 cursor-pointer;
+}
+
+.multiselect__select::before {
+  content: '';
+  @apply block w-2 h-2 -mt-1 border-r-2 border-b-2 border-slate-400 dark:border-slate-500 rotate-45 transition-transform duration-200;
+}
+
+.multiselect--active .multiselect__select::before {
+  @apply mt-1 rotate-[225deg] border-blue-500 dark:border-blue-400;
+}
+
+.multiselect__spinner {
+  @apply absolute right-10 top-1/2 -mt-2 w-4 h-4 rounded-full border-2 border-slate-300 dark:border-slate-600 border-t-blue-600 dark:border-t-blue-400 animate-spin;
+}
+
+.multiselect__content-wrapper {
+  @apply absolute left-0 right-0 top-full z-50 mt-2 block overflow-y-auto overscroll-contain rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-700/90 p-1.5 shadow-xl;
+}
+
+.multiselect--above .multiselect__content-wrapper {
+  @apply top-auto bottom-full mt-0 mb-2;
+}
+
+.multiselect__content {
+  @apply m-0 p-0 w-full min-w-full list-none;
+}
+
+.multiselect__element {
+  @apply block;
+}
+
+.multiselect__option {
+  @apply flex items-center gap-2 min-h-[44px] px-3 py-2 rounded-xl text-base lg:text-sm text-slate-700 dark:text-slate-200 cursor-pointer select-none;
+}
+
+.multiselect__option > span {
+  @apply truncate;
+}
+
+.multiselect__option--highlight {
+  @apply bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white;
+}
+
+.multiselect__option--selected {
+  @apply font-semibold text-blue-600 dark:text-blue-400;
+}
+
+.multiselect__option--selected::after {
+  content: '✓';
+  @apply ml-auto pl-3 text-blue-600 dark:text-blue-400;
+}
+
+.multiselect__option--disabled,
+.multiselect__option--group {
+  @apply text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 cursor-default bg-transparent dark:bg-transparent;
+}
+
+.multiselect__strong {
+  @apply text-xs font-medium text-slate-500 dark:text-slate-400;
+}
+
+.multiselect-skeleton {
+  @apply w-full h-11 rounded-xl bg-slate-200 dark:bg-slate-700 animate-pulse;
+}
 ```
 
 ---
@@ -1708,6 +2007,7 @@ Every project created or managed with this skill must contain a `PROGRESS.md` fi
 - [ ] Initialize Nuxt 4 project (Node >= 24.22.0 LTS, Nuxt 4.6.1).
 - [ ] Configure `nuxt.config.ts`, `tailwind.config.ts` (`darkMode: 'class'`), and `@pinia/nuxt`.
 - [ ] Build `app/assets/css/main.css` with CSS custom property tokens, base rules, and `@apply` classes with `dark:` variants.
+- [ ] Install `vue-multiselect@^3.5.0`, build `app/components/shared/AppSelect.vue`, and add the unlayered `.multiselect*` skin plus the rounded `.apple-checkbox` / `.checkbox-field` classes to `main.css`.
 - [ ] Create `app/config/menu.jsonc` with modules, routes, icons, and `permission.view/create/edit/delete` keys.
 - [ ] Build `app/utils/jsonc.ts` safe JSONC parser.
 - [ ] Build `app/composables/useMenu.ts` and `app/composables/usePermissions.ts`.
@@ -1718,7 +2018,7 @@ Every project created or managed with this skill must contain a `PROGRESS.md` fi
 
 ### Phase 2 — Dual-Locale i18n (`en`/`km`) & Light/Dark Theme System
 - [ ] Install and configure `@nuxtjs/i18n` in `nuxt.config.ts` (`strategy: 'no_prefix'`).
-- [ ] Create `app/locales/en.json` with all key namespaces (`nav`, `group`, `topbar`, `theme`, `lang`, `common`, `dashboard`, `users`, `roles`).
+- [ ] Create `app/locales/en.json` with all key namespaces (`nav`, `group`, `topbar`, `pos`, `theme`, `lang`, `common`, `select`, `dashboard`, `users`, `roles`).
 - [ ] Create `app/locales/km.json` with complete Khmer (ខ្មែរ) translations mirroring `en.json`.
 - [ ] Create `app/stores/preferences.ts` with `locale` (`en`|`km`) and `theme` (`light`|`dark`).
 - [ ] Build `app/composables/useLocale.ts` to sync preferences store with Vue I18n runtime.
@@ -1746,8 +2046,8 @@ Every project created or managed with this skill must contain a `PROGRESS.md` fi
 - [ ] Build `app/components/pos/ProductSearchBar.vue` with debounced search/barcode lookup and `app/components/pos/ProductCard.vue` rendering **image (with placeholder fallback), title, price, and an available-stock badge** (`.stock-badge-in` / `-low` / `-out`).
 - [ ] Build `ProductCardSkeleton.vue` and category-pill skeletons using `.skeleton-image` / `.skeleton-text` / `.skeleton-pill` (neutral `slate` + `animate-pulse` only — no accent color, no `blur-*`) shown while `isLoading`, swapped for real content the instant data resolves.
 - [ ] Build `app/components/pos/CartPane.vue` and `app/components/pos/CartLineItem.vue` mirroring the same image/title/price fields, with a quantity stepper disabled once `quantity === availableStock`.
-- [ ] Build Checkout Modal with payment method selector (Cash, Card, QR Code) and receipt summary.
-- [ ] Build `app/pages/products/index.vue` with search, category filter, and stock level badges.
+- [ ] Build Checkout Modal with payment method selector (Cash, Card, QR Code) and receipt summary. Any dropdown picker here uses `AppSelect.vue`.
+- [ ] Build `app/pages/products/index.vue` with search, category filter (`AppSelect.vue`), and stock level badges.
 - [ ] Build `app/pages/categories/index.vue` with category tree and product count.
 - [ ] Build `app/pages/sales/index.vue` and `app/pages/orders/index.vue` with pagination.
 - [ ] Enforce `.apple-input` rules (`text-base lg:text-sm`) across all POS and search inputs.
@@ -1775,7 +2075,8 @@ Every project created or managed with this skill must contain a `PROGRESS.md` fi
 - [ ] Audit Mobile viewport (`< 768px`): floating drawer, full-width POS, zero horizontal scroll.
 - [ ] Audit Tablet viewport (`768px - 1024px`): collapsed sidebar rail, 2-column POS cart.
 - [ ] Audit PC viewport (`>= 1024px`): expanded/collapsed sidebar offsets (`lg:pl-72`, `lg:pl-28`, `lg:pl-6`).
-- [ ] Verify Safari no-zoom: all inputs, selects, and textareas compute to >= 16px below 1024px.
+- [ ] Verify Safari no-zoom: all inputs, textareas, and `.multiselect__input` search fields compute to >= 16px below 1024px.
+- [ ] Verify zero native `<select>` elements remain (`grep -rn "<select" app/` returns nothing) and every checkbox uses the rounded `.apple-checkbox`.
 - [ ] Run `npm run lint` and resolve any warnings.
 - [ ] Run `npm run typecheck` and ensure zero TypeScript errors.
 - [ ] Run `npm run build` and ensure clean production SSR/client bundle generation.
@@ -1856,7 +2157,7 @@ Every project created or managed with this skill must contain a `PROGRESS.md` fi
 - **Quality Gate (Exit Criteria):**
   1. Full Create, Read, Update, and Delete operations work in demo mode with simulated network delay.
   2. Form errors match the Laravel 422 envelope format (`{ errors: { email: ['...'] } }`) and display beside inputs.
-  3. Dynamic `PermissionMatrix.vue` matches modules from `menu.jsonc` exactly.
+  3. Dynamic `PermissionMatrix.vue` matches modules from `menu.jsonc` exactly, with rounded `.apple-checkbox` cells and indeterminate "Select all" toggles.
   4. Delete safety rules are enforced (cannot delete self, last admin, or system roles).
   5. Action buttons (`create`, `edit`, `delete`) respect the active user's permissions in `auth.ts`.
 
@@ -1885,7 +2186,7 @@ Every project created or managed with this skill must contain a `PROGRESS.md` fi
 1. **Mobile (`< 768px`):**
    - Floating sidebar is hidden off-screen (`-translate-x-[calc(100%+1.5rem)]`) and opens as a floating drawer over `.sidebar-backdrop` (`z-30`).
    - POS screen operates at 100% width with no sidebar, showing `.pos-gear-btn` in the topbar to exit to admin.
-   - All `.apple-input`, search bars, and selects compute to `16px` (`text-base`) so iOS Safari never auto-zooms on focus.
+   - All `.apple-input`, search bars, and `AppSelect.vue` search inputs (`.multiselect__input`) compute to `16px` (`text-base`) so iOS Safari never auto-zooms on focus. Open select menus stay inside the viewport and are not clipped by `.table-container`.
    - Grids collapse to single-column (`grid-cols-1`) and tables scroll within `.table-container`.
 2. **Tablet (`768px - 1024px`, `md:`):**
    - Sidebar functions as a toggleable floating drawer or collapsed rail (`w-20`).
@@ -1931,9 +2232,10 @@ When all requested phases are completed, run the final verification checks (`npm
 3. **Phase Matrix & Tracker Status:** Confirmation that `PROGRESS.md` reflects all completed milestones.
 4. **i18n Key Coverage:** Confirm all visible strings use `$t()` / `t()` across English (`en`) and Khmer (`km`).
 5. **Theme System Status:** Confirm `<html class="dark">` toggling, localStorage persistence, and `@apply` `dark:` coverage.
-6. **Layout & Responsive Verification:** Mobile, tablet, and PC geometry audit results (including POS no-sidebar mode and Safari focus no-zoom).
-7. **Commands Executed & Actual Results:** Exact commands run with their terminal output status.
-8. **Demo vs Live API Status:** Clear declaration of whether demo services or Laravel endpoints are active, with recommended next steps.
+6. **Form Controls:** Confirm no native `<select>` remains, every picker uses `AppSelect.vue` with translated placeholder/empty-state slots, and every checkbox renders the rounded `.apple-checkbox` in Light and Dark mode.
+7. **Layout & Responsive Verification:** Mobile, tablet, and PC geometry audit results (including POS no-sidebar mode and Safari focus no-zoom).
+8. **Commands Executed & Actual Results:** Exact commands run with their terminal output status.
+9. **Demo vs Live API Status:** Clear declaration of whether demo services or Laravel endpoints are active, with recommended next steps.
 
 ---
 
@@ -1941,6 +2243,7 @@ When all requested phases are completed, run the final verification checks (`npm
 
 Update the relevant section when project requirements change:
 - **Design tokens & CSS classes:** Section 11 (`app/assets/css/main.css`).
+- **Select (`AppSelect.vue` / `vue-multiselect`) & rounded checkbox rules:** Section 8 and the "vue-multiselect Skin" block in Section 11.
 - **Sidebar navigation & permissions:** Section 5 (`app/config/menu.jsonc`).
 - **Users & Roles CRUD rules:** Section 6.
 - **Product catalog, search & cart rules (image, title, price, available stock):** Section 7.

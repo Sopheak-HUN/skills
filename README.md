@@ -17,6 +17,7 @@ A collection of reusable **agent skills** (`SKILL.md` files) for AI coding assis
 - **Users & Roles CRUD** with role-based action permissions (`users.view/create/edit/delete`, `roles.view/create/edit/delete`), a permission matrix generated from `menu.jsonc`, Laravel-shaped validation errors, and delete safety rules (no deleting yourself, the last admin, a system role, or a role still in use).
 - **Dashboard, POS terminal, products, categories, inventory, sales, orders, customers, reports, and settings** pages built on a consistent table and form pattern with loading, empty, error, and retry states.
 - **Apple-style inputs that never trigger iOS Safari auto-zoom.** Every form control computes to at least 16px below 1024px (`text-base lg:text-sm`), with 44px touch targets and `touch-action: manipulation`, without disabling pinch-to-zoom.
+- **One select control and rounded checkboxes.** Every picker uses `AppSelect.vue`, a wrapper around `vue-multiselect` 3.x skinned in `main.css` with dark-mode support. Checkboxes are native inputs with a rounded custom style and an indeterminate state for "Select all".
 - **Centralized Tailwind styling.** All utility chains live in `app/assets/css/main.css` as `@apply` component classes; Vue templates use semantic class names only.
 - **Zero-bug layout protocol.** Exact sidebar/content geometry (`lg:pl-72` expanded, `lg:pl-28` collapsed, `lg:pl-6` on POS), a fixed z-index ladder (topbar 20, backdrop 30, sidebar 40, dropdowns and modals 50), `min-w-0` overflow protection, and SSR-safe layout state.
 - **Frontend-only by default.** Demo data is clearly isolated in service modules, and the API layer is shaped so a Laravel backend can be plugged in later without rewriting pages. The skill never creates a backend, database, Docker, or CI config unless asked.
@@ -74,6 +75,7 @@ Typical requests:
 - Nuxt 4 (or Nuxt 3 with `compatibilityVersion: 4`), Vue 3, TypeScript
 - Tailwind CSS (v3 or v4) with `@apply` in `main.css`
 - Pinia for shared state
+- `vue-multiselect` 3.x for every select control
 - JSONC menu configuration
 - Laravel as an optional, later API provider
 
